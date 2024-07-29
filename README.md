@@ -1,5 +1,9 @@
 # RALF - Reinforcement Learning assisted Automated analog Layout design Flow
 
+**Please read and cite this paper about RALF: Jakob Ratschenberger, Harald Pretl. RALF: A Reinforcement Learning Assisted Automated Analog Layout Design Flow. TechRxiv. June 03, 2024.
+DOI: 10.36227/techrxiv.171742468.82130474/v1 [link](https://www.techrxiv.org/users/684857/articles/1005136-ralf-a-reinforcement-learning-assisted-automated-analog-layout-design-flow).**
+
+
 As part of a master's thesis, at the Institute for Integrated Circuits (IIC), Johannes Kepler University, Linz, Austria,
 an automated analog layout design flow was developed.
 
