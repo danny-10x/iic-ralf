@@ -20,47 +20,50 @@
 # ========================================================================
 
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from Magic.MagicDie import MagicDie
 
-import pickle
-from Magic.utils import place_circuit, instantiate_circuit
 import os
+import pickle
+
+from Magic.utils import instantiate_circuit, place_circuit
 
 ###############################################################
 
-CIRCUIT_NAME = "DiffAmp"  #Name of the circuit
+CIRCUIT_NAME = "DiffAmp"  # Name of the circuit
 
 ###############################################################
 
-#load the placed circuit 
-file = open(f"PlacementCircuits/{CIRCUIT_NAME}_placement.pkl", 'rb')
-die : MagicDie
+# load the placed circuit
+file = open(f"PlacementCircuits/{CIRCUIT_NAME}_placement.pkl", "rb")
+die: MagicDie
 die = pickle.load(file)
 file.close()
 
-#get the placed circuit
+# get the placed circuit
 circuit = die.circuit
 
-#instantiate the circuit-devices in Magic
-instantiate_circuit(circuit, path='Magic/Devices')
+# instantiate the circuit-devices in Magic
+instantiate_circuit(circuit, path="Magic/Devices")
 
-#place the circuit
+# place the circuit
 place_circuit(CIRCUIT_NAME, circuit, debug=False)
 
-#open the routing file
-if os.path.isfile(f'Magic/Routing/{CIRCUIT_NAME}_routing.tcl'):
-    routing_file = open(f'Magic/Routing/{CIRCUIT_NAME}_routing.tcl', 'r')
-    commands = [line for line in routing_file]
+# open the routing file
+if os.path.isfile(f"Magic/Routing/{CIRCUIT_NAME}_routing.tcl"):
+    routing_file = open(f"Magic/Routing/{CIRCUIT_NAME}_routing.tcl")
+    commands = list(routing_file)
     routing_file.close()
     commands.insert(0, f"load Magic/Placement/{CIRCUIT_NAME}.mag\n")
-    routing_file = open(f'Magic/Routing/{CIRCUIT_NAME}_routing_temp.tcl', 'w')
-    for l in commands:
-        routing_file.write(l)
+    routing_file = open(f"Magic/Routing/{CIRCUIT_NAME}_routing_temp.tcl", "w")
+    for line_ in commands:
+        routing_file.write(line_)
     routing_file.close()
 else:
     raise FileNotFoundError("Routing file not found!")
 
-os.system(f'magic -nowrapper Magic/Routing/{CIRCUIT_NAME}_routing_temp.tcl')
-os.remove(f'Magic/Routing/{CIRCUIT_NAME}_routing_temp.tcl')
+os.system(f"magic -nowrapper Magic/Routing/{CIRCUIT_NAME}_routing_temp.tcl")
+os.remove(f"Magic/Routing/{CIRCUIT_NAME}_routing_temp.tcl")

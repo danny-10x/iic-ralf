@@ -1,0 +1,42 @@
+# virtual env
+.venv/
+
+# Sphinx
+docs/build/
+
+# uv-specific
+.uv/
+uv.lock
+
+# Python-specific
+.python-version
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python/
+env/
+venv/
+.venv/
+build/
+develop-eggs/
+dist/
+eggs/
+*.egg-info/
+.coverage
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+*.sqlite3
+*.db
+instance/
+
+# OS and Editor-specific
+.DS_Store
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+Thumbs.db
+*.code-workspace

@@ -1,0 +1,34 @@
+# General settings for Ruff
+line-length = 88
+target-version = "py39"
+preview = true # Enable unstable features for previewing upcoming changes
+
+# Linting settings
+[lint]
+select = [
+    "E",  # Error
+    "F",  # Pyflakes
+    "W",  # Warning
+    "I",  # isort
+    "N",  # pep8-naming
+    "D",  # pydocstyle
+    "UP", # pyupgrade
+    "B",  # flake8-bugbear
+    "A",  # flake8-builtins
+    "C4", # flake8-comprehensions
+    "TID",# flake8-tidy-imports
+    "ISC",# flake8-implicit-str-concat
+    "ICN",# flake8-import-conventions
+    "RUF",# Ruff-specific rules
+]
+ignore = [
+    "D100", # Missing docstring in public module
+    "D104", # Missing docstring in public package
+    "E501", # Line too long (handled by formatter)
+]
+
+# Formatting settings
+[format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false

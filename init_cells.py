@@ -1,6 +1,6 @@
 # ========================================================================
 #
-#   Script to place a already placed circuit in Magic.
+#   Script to initialize the cells of a circuit in Magic.
 #
 # SPDX-FileCopyrightText: 2023 Jakob Ratschenberger
 # Johannes Kepler University, Institute for Integrated Circuits
@@ -20,35 +20,31 @@
 # ========================================================================
 
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from Magic.MagicDie import MagicDie
 
+
 import pickle
-from Magic.utils import place_circuit, instantiate_circuit
-import os
 
-###########################################################################
+from Magic.utils import instantiate_circuit
 
-CIRCUIT_NAME = "DiffAmp"  #Name of the circuit
-START_MAGIC = True        #If True, Magic will be started, with the loaded placement
+#########################################################################
 
-###########################################################################
+CIRCUIT_NAME = "DiffAmp"  # Name of the circuit
 
-#load the placed circuit 
-file = open(f"PlacementCircuits/{CIRCUIT_NAME}_placement.pkl", 'rb')
-die : MagicDie
+#########################################################################
+
+# load the placed circuit
+file = open(f"PlacementCircuits/{CIRCUIT_NAME}_placement.pkl", "rb")
+die: MagicDie
 die = pickle.load(file)
 file.close()
 
-#get the placed circuit
+# get the placed circuit
 circuit = die.circuit
 
-#instantiate the circuit-devices in Magic
-instantiate_circuit(circuit, path='Magic/Devices')
-
-#place the circuit
-place_circuit(CIRCUIT_NAME, circuit, debug=False)
-
-if START_MAGIC:
-    os.system(f'magic Magic/Placement/{CIRCUIT_NAME}.mag')
+# instantiate the circuit cells in magic
+instantiate_circuit(circuit, "Magic/Devices")
