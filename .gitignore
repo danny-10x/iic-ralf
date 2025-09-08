@@ -37,6 +37,4 @@ instance/
 .vscode/
 .idea/
 *.sublime-project
-*.sublime-workspace
 Thumbs.db
-*.code-workspace
