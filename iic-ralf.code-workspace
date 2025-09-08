@@ -10,5 +10,12 @@
 		"editor.codeActionsOnSave": {
 			"source.fixAll": "explicit"
 		}
+	},
+	"extensions": {
+		"recommendations": [
+			"ms-python.python",
+			"ms-python.vscode-pylance",
+			"charliermarsh.ruff",
+  ]
 	}
 }
