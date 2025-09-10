@@ -127,10 +127,11 @@ class SequencePair:
                     "y": dist_v[i] - height_wrot[i],  # distande from bottom edge
                     "width": width_wrot[i],
                     "height": height_wrot[i],
+                    "rotation": rotations[i],
                 }
             )
 
-        return Floorplan(bounding_box=(bb_width, bb_height), positions=positions)
+        return Floorplan(bounding_box=(bb_width, bb_height), positions=positions, problem=problem)
 
     def encode(self) -> None:
         """

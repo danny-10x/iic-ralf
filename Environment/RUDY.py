@@ -23,7 +23,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from PDK.PDK import PDK
-    from SchematicCapture.Net import Net
+    from schematic_capture.net import Net
 import matplotlib.pyplot as plt
 import numpy as np
 

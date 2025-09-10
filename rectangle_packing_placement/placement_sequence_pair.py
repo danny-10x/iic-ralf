@@ -18,31 +18,39 @@
 # limitations under the License.
 from __future__ import annotations
 
-from rectangle_packing_placement.placement_floorplan import PlacementFloorplan
-
-from rectangle_packing_placement.rectangle_packing_solver.problem import Problem
-from rectangle_packing_placement.rectangle_packing_solver.sequence_pair import SequencePair
-
 import graphlib
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Dict, List
+
+from rectangle_packing_placement.placement_floorplan import PlacementFloorplan
+from rectangle_packing_placement.rectangle_packing_solver.problem import Problem
+from rectangle_packing_placement.rectangle_packing_solver.sequence_pair import (
+    SequencePair,
+)
+
 
 class PlacementSequencePair(SequencePair):
-    def decode(self, problem: Problem, rotations: List | None = None) -> PlacementFloorplan:
+    def decode(
+        self, problem: Problem, rotations: List | None = None
+    ) -> PlacementFloorplan:
+        """Decode:
+        Based on the sequence pair and the problem with rotations information, calculate a floorplan
+        (bounding box, area, and rectangle positions).
         """
-        Decode:
-            Based on the sequence pair and the problem with rotations information, calculate a floorplan
-            (bounding box, area, and rectangle positions).
-        """
-
         if not isinstance(problem, Problem):
-            raise TypeError("Invalid argument: 'problem' must be an instance of Problem.")
+            raise TypeError(
+                "Invalid argument: 'problem' must be an instance of Problem."
+            )
 
         if problem.n != self.n:
-            raise ValueError("'problem.n' must be the same as the sequence-pair length.")
+            raise ValueError(
+                "'problem.n' must be the same as the sequence-pair length."
+            )
 
         if rotations is not None:
             if len(rotations) != self.n:
-                raise ValueError("'rotations' length must be the same as the sequence-pair length.")
+                raise ValueError(
+                    "'rotations' length must be the same as the sequence-pair length."
+                )
 
         coords = self.oblique_grid.coordinates
 
@@ -66,7 +74,9 @@ class PlacementSequencePair(SequencePair):
         for i in range(self.n):
             for j in range(self.n):
                 # When j is right of i, set an edge from j to i
-                if (coords[i]["a"] < coords[j]["a"]) and (coords[i]["b"] < coords[j]["b"]):
+                if (coords[i]["a"] < coords[j]["a"]) and (
+                    coords[i]["b"] < coords[j]["b"]
+                ):
                     graph_h[j].append(i)
 
         # Topological order of DAG (G_h)
@@ -85,7 +95,9 @@ class PlacementSequencePair(SequencePair):
         for i in range(self.n):
             for j in range(self.n):
                 # When j is above i, set an edge from j to i
-                if (coords[i]["a"] > coords[j]["a"]) and (coords[i]["b"] < coords[j]["b"]):
+                if (coords[i]["a"] > coords[j]["a"]) and (
+                    coords[i]["b"] < coords[j]["b"]
+                ):
                     graph_v[j].append(i)
 
         # Topological order of DAG (G_v)
@@ -101,16 +113,15 @@ class PlacementSequencePair(SequencePair):
         # Calculate bottom-left positions
         positions = []
         for i in range(self.n):
-            positions.append(
-                {
-                    "id": i,
-                    "x": dist_h[i] - width_wrot[i],  # distance from left edge
-                    "y": dist_v[i] - height_wrot[i],  # distande from bottom edge
-                    "width": width_wrot[i],
-                    "height": height_wrot[i],
-                    "rotation": rotations[i]
-                }
-            )
+            positions.append({
+                "id": i,
+                "x": dist_h[i] - width_wrot[i],  # distance from left edge
+                "y": dist_v[i] - height_wrot[i],  # distande from bottom edge
+                "width": width_wrot[i],
+                "height": height_wrot[i],
+                "rotation": rotations[i],
+            })
 
-        return PlacementFloorplan(bounding_box=(bb_width, bb_height), positions=positions, problem=problem)
-        
+        return PlacementFloorplan(
+            bounding_box=(bb_width, bb_height), positions=positions, problem=problem
+        )

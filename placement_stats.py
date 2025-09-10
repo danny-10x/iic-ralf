@@ -24,18 +24,18 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from Magic.MagicDie import MagicDie
-    from SchematicCapture.Circuit import Circuit
+    from magic.magic_die import MagicDie
+    from schematic_capture.circuit import Circuit
 
 import pickle
 
 from prettytable import PrettyTable
 
-from Environment.RUDY import RUDY
+from environment.rudy import Rudy
 from PDK.PDK import global_pdk
-from Routing_v2.utils import get_nets_and_pins
-from SchematicCapture.Devices import SubDevice
-from SchematicCapture.Net import SubNet
+from routing_v2.utils import get_nets_and_pins
+from schematic_capture.devices import SubDevice
+from schematic_capture.net import SubNet
 
 ###################################################################
 
@@ -57,7 +57,7 @@ circuit = die.circuit
 nets_and_pins = get_nets_and_pins(circuit)
 
 # setup RUDY for congestion estimation
-rudy = RUDY(global_pdk)
+rudy = Rudy(global_pdk)
 
 # setup a dict to store the HPWLs
 HPWL = {}

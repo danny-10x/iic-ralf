@@ -26,14 +26,14 @@ from prettytable import PrettyTable
 
 from environment.cell_sliding import cell_slide3
 from environment.rudy import Rudy
-from Magic.utils import add_cells, instantiate_circuit
+from magic.utils import add_cells, instantiate_circuit
 from PDK.PDK import global_pdk
-from Routing_v2.utils import get_nets_and_pins
-from SchematicCapture.Devices import SubDevice
-from SchematicCapture.Net import SubNet
-from SchematicCapture.RString import include_RStrings_hierarchical
-from SchematicCapture.utils import (
-    Circuit,
+from routing_v2.utils import get_nets_and_pins
+from schematic_capture.circuit import Circuit
+from schematic_capture.devices import SubDevice
+from schematic_capture.net import SubNet
+from schematic_capture.rstring import include_RStrings_hierarchical
+from schematic_capture.utils import (
     include_primitives_hierarchical,
     setup_circuit,
 )
@@ -58,10 +58,10 @@ include_primitives_hierarchical(circuit)
 include_RStrings_hierarchical(circuit)
 
 # instantiate the circuit cells in magic
-instantiate_circuit(circuit, "Magic/Devices")
+instantiate_circuit(circuit, "magic/devices")
 
 # add the cells to the devices
-add_cells(circuit, "Magic/Devices")
+add_cells(circuit, "magic/devices")
 
 # place the devices
 cells = []
@@ -115,7 +115,7 @@ for net in nets_and_pins.keys():
     else:
         net_name = net.name
 
-    HPWL[net_name] = net.HPWL()
+    HPWL[net_name] = net.get_hpwl()
 
 # get the congestion
 congestion = round(rudy.congestion(), 2)

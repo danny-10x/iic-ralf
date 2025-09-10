@@ -35,6 +35,7 @@ class Visualizer:
 
         positions = solution.floorplan.positions
         bounding_box = solution.floorplan.bounding_box
+        problem = solution.problem
 
         # Figure settings
         bb_width = bounding_box[0]
@@ -66,7 +67,7 @@ class Visualizer:
             centering_offset = 0.011
             center_x = rectangle["x"] + rectangle["width"] / 2 - bb_width * centering_offset
             center_y = rectangle["y"] + rectangle["height"] / 2 - bb_height * centering_offset
-            ax.text(x=center_x, y=center_y, s=rectangle["id"], fontsize=18, color=fontcolor)
+            ax.text(x=center_x, y=center_y, s=problem.id_to_device(rectangle["id"]), fontsize=18, color=fontcolor)
 
         # Output
         if path is None:

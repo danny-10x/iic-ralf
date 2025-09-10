@@ -24,12 +24,12 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from Magic.MagicDie import MagicDie
+    from magic.magic_die import MagicDie
 
 import os
 import pickle
 
-from Magic.utils import instantiate_circuit, place_circuit
+from magic.utils import instantiate_circuit, place_circuit
 
 ###########################################################################
 
@@ -39,7 +39,7 @@ START_MAGIC = True  # If True, Magic will be started, with the loaded placement
 ###########################################################################
 
 # load the placed circuit
-file = open(f"PlacementCircuits/{CIRCUIT_NAME}_placement.pkl", "rb")
+file = open(f"placement_circuits/{CIRCUIT_NAME}_placement.pkl", "rb")
 die: MagicDie
 die = pickle.load(file)
 file.close()
@@ -48,10 +48,10 @@ file.close()
 circuit = die.circuit
 
 # instantiate the circuit-devices in Magic
-instantiate_circuit(circuit, path="Magic/Devices")
+instantiate_circuit(circuit, path="magic/devices")
 
 # place the circuit
 place_circuit(CIRCUIT_NAME, circuit, debug=False)
 
 if START_MAGIC:
-    os.system(f"magic Magic/Placement/{CIRCUIT_NAME}.mag")
+    os.system(f"magic magic/layouts/{CIRCUIT_NAME}.mag")

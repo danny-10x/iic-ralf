@@ -22,8 +22,8 @@
 import matplotlib.pyplot as plt
 import networkx as nx
 
-from SchematicCapture.RString import include_RStrings_hierarchical
-from SchematicCapture.utils import (
+from schematic_capture.rstring import include_RStrings_hierarchical
+from schematic_capture.utils import (
     get_top_down_topology,
     include_primitives_hierarchical,
     setup_circuit,

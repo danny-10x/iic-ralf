@@ -25,10 +25,11 @@ import pickle
 from logging.handlers import RotatingFileHandler
 
 from Magic.MagicDie import MagicDie
+
 from Magic.utils import add_cells, instantiate_circuit
 from rectangle_packing_placement.utils import do_bottom_up_placement
-from SchematicCapture.RString import include_RStrings_hierarchical
-from SchematicCapture.utils import include_primitives_hierarchical, setup_circuit
+from schematic_capture.RString import include_RStrings_hierarchical
+from schematic_capture.utils import include_primitives_hierarchical, setup_circuit
 
 faulthandler.enable()
 

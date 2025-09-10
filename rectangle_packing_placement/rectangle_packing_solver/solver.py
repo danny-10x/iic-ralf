@@ -1,5 +1,12 @@
 # Copyright 2022 Kotaro Terada
 #
+# Copyright 2023 Jakob Ratschenberger
+#
+# Modifications:
+# - Modified RectanglePackingProblemAnnealerHard.energy() for the placement task
+# - Modified RectanglePackingProblemAnnealerSoft.energy() for the placement task
+#
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -16,6 +23,7 @@ import random
 import signal
 import sys
 from typing import Any, List, Optional, Tuple
+import math
 
 import simanneal
 from tqdm.auto import tqdm
@@ -177,7 +185,7 @@ class Solver:
         seqpair = SequencePair(pair=(gp, gn))
         floorplan = seqpair.decode(problem=problem, rotations=rotations)
 
-        return Solution(sequence_pair=seqpair, floorplan=floorplan)
+        return Solution(sequence_pair=seqpair, floorplan=floorplan, problem=problem)
 
 
 class RectanglePackingProblemAnnealer(simanneal.Annealer):
@@ -292,7 +300,8 @@ class RectanglePackingProblemAnnealerHard(RectanglePackingProblemAnnealer):
 
     def energy(self) -> float:
         """
-        Calculates the area of bounding box.
+        Calculates energy of the actual floorplan.
+            -> Energy = HPWL + sqrt(Area)
         """
 
         # Pick up sequence-pair and rotations from state
@@ -306,7 +315,7 @@ class RectanglePackingProblemAnnealerHard(RectanglePackingProblemAnnealer):
         if floorplan.bounding_box[1] > self.height_limit:
             return sys.float_info.max
 
-        return float(floorplan.area)
+        return float(floorplan.HPWL) + math.sqrt(floorplan.congestion)
 
 
 class RectanglePackingProblemAnnealerSoft(RectanglePackingProblemAnnealer):
@@ -343,7 +352,8 @@ class RectanglePackingProblemAnnealerSoft(RectanglePackingProblemAnnealer):
 
     def energy(self) -> float:
         """
-        Calculates the area of bounding box.
+        Calculates energy of the actual floorplan.
+            -> Energy = HPWL + sqrt(Area)
         """
 
         # Pick up sequence-pair and rotations from state
@@ -359,7 +369,7 @@ class RectanglePackingProblemAnnealerSoft(RectanglePackingProblemAnnealer):
         if floorplan.bounding_box[1] > self.height_limit:
             return self.max_possible_width * self.max_possible_height + floorplan.area
 
-        return float(floorplan.area)
+        return float(floorplan.HPWL) + math.sqrt(floorplan.congestion)
 
 
 class HardToFindSolutionException(Exception):

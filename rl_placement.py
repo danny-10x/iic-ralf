@@ -24,11 +24,11 @@ import logging
 import pickle
 from logging.handlers import RotatingFileHandler
 
-from Environment.utils import do_bottom_up_placement
-from Magic.MagicDie import MagicDie
-from Magic.utils import add_cells, instantiate_circuit
-from SchematicCapture.RString import include_RStrings_hierarchical
-from SchematicCapture.utils import include_primitives_hierarchical, setup_circuit
+from environment.utils import do_bottom_up_placement
+from magic.magic_die import MagicDie
+from magic.utils import add_cells, instantiate_circuit
+from schematic_capture.rstring import include_RStrings_hierarchical
+from schematic_capture.utils import include_primitives_hierarchical, setup_circuit
 
 faulthandler.enable()
 
@@ -56,7 +56,7 @@ def rl_placement():
     if USE_LOGGER:
         # Setup a logger
         log_handler = RotatingFileHandler(
-            filename=f"Logs/{CIRCUIT_NAME}_placement.log",
+            filename=f"logs/{CIRCUIT_NAME}_placement.log",
             mode="w",
             maxBytes=100e3,
             backupCount=1,
@@ -83,7 +83,7 @@ def rl_placement():
         instantiate_circuit(circuit, "Magic/Devices")
 
     # add the cells to the devices
-    add_cells(circuit, "Magic/Devices")
+    add_cells(circuit, "magic/devices")
 
     # define a die for the circuit
     die = MagicDie(circuit=circuit, def_file=DEF_FILE)

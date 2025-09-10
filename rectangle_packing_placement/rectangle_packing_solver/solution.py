@@ -14,14 +14,14 @@
 
 from .floorplan import Floorplan
 from .sequence_pair import SequencePair
-
+from .problem import Problem
 
 class Solution:
     """
     A class to represent a rectangle packing solution.
     """
 
-    def __init__(self, sequence_pair: SequencePair, floorplan: Floorplan) -> None:
+    def __init__(self, sequence_pair: SequencePair, floorplan: Floorplan, problem : Problem) -> None:
 
         if not isinstance(sequence_pair, SequencePair):
             raise TypeError("Invalid argument: 'sequence_pair' must be an instance of SequencePair.")
@@ -29,9 +29,13 @@ class Solution:
         if not isinstance(floorplan, Floorplan):
             raise TypeError("Invalid argument: 'floorplan' must be an instance of Floorplan.")
 
+        if not isinstance(problem, Problem):
+            raise TypeError("Invalid argument: 'problem' must be an instance of Problem.")
+
         self.sequence_pair = sequence_pair
         self.floorplan = floorplan
-
+        self.problem = problem
+        
     def __repr__(self) -> str:
         s = "Solution({"
         s += "'sequence_pair': " + str(self.sequence_pair) + ", "

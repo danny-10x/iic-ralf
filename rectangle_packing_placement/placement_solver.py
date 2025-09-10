@@ -22,42 +22,56 @@
 
 
 from __future__ import annotations
-from typing import TYPE_CHECKING, List, Optional
-from rectangle_packing_placement.rectangle_packing_solver.problem import Problem
+
+from typing import TYPE_CHECKING
+
 from rectangle_packing_placement.placement_solution import PlacementSolution
+from rectangle_packing_placement.rectangle_packing_solver.problem import Problem
 
 if TYPE_CHECKING:
     from rectangle_packing_placement.placement_problem import PlacementProblem
 
-from rectangle_packing_placement.rectangle_packing_solver.solver import Solver, RectanglePackingProblemAnnealerHard, RectanglePackingProblemAnnealerSoft, exit_handler
-from rectangle_packing_placement.placement_sequence_pair import PlacementSequencePair
-
-import random
-import sys
-import signal
 import math
-import pandas
+import random
+import signal
+import sys
+
+import pandas as pd
+
+from rectangle_packing_placement.placement_sequence_pair import PlacementSequencePair
+from rectangle_packing_placement.rectangle_packing_solver.solver import (
+    RectanglePackingProblemAnnealerHard,
+    RectanglePackingProblemAnnealerSoft,
+    Solver,
+    exit_handler,
+)
+
 
 class PlacementSolver(Solver):
-    def __init__(self) -> None:
-        super().__init__()
+    """Class that defines a placement solver."""
+
+    # def __init__(self) -> None:
+    #     super().__init__()
 
     def solve(
         self,
         problem: Problem,
-        width_limit: Optional[float] = None,
-        height_limit: Optional[float] = None,
+        width_limit: float | None = None,
+        height_limit: float | None = None,
         simanneal_minutes: float = 0.1,
         simanneal_steps: int = 100,
         n_placements: int = 100,
         show_progress: bool = False,
-        seed: Optional[int] = None,
+        seed: int | None = None,
     ) -> PlacementSolution:
+        """Solve the placement problem."""
         if seed:
             random.seed(seed)
 
         if not isinstance(problem, Problem):
-            raise TypeError("Invalid argument: 'problem' must be an instance of Problem.")
+            raise TypeError(
+                "Invalid argument: 'problem' must be an instance of Problem."
+            )
 
         # If width/height limits are not given...
         if (width_limit is None) and (height_limit is None):
@@ -78,17 +92,23 @@ class PlacementSolver(Solver):
             width_limit = sys.float_info.max
         if height_limit is None:
             height_limit = sys.float_info.max
-        max_width = max([min(r["width"], r["height"]) if r["rotatable"] else r["width"] for r in problem.rectangles])
-        max_height = max([min(r["width"], r["height"]) if r["rotatable"] else r["height"] for r in problem.rectangles])
+        max_width = max(
+            min(r["width"], r["height"]) if r["rotatable"] else r["width"]
+            for r in problem.rectangles
+        )
+        max_height = max(
+            min(r["width"], r["height"]) if r["rotatable"] else r["height"]
+            for r in problem.rectangles
+        )
         if width_limit < max_width:
             raise ValueError(
                 f"'width_limit' must be greater than or equal to {max_width} "
-                + "(= the largest width of the given problem)."
+                "(= the largest width of the given problem)."
             )
         if height_limit < max_height:
             raise ValueError(
                 f"'height_limit' must be greater than or equal to {max_height} "
-                + "(= the largest height of the given problem)."
+                "(= the largest height of the given problem)."
             )
 
         # If constraints of width and/or hight are given,
@@ -122,28 +142,36 @@ class PlacementSolver(Solver):
                 strategy="hard",
             )
 
-    def _solve_with_strategy(self, problem: PlacementProblem, 
-                             width_limit: float | None = None, 
-                             height_limit: float | None = None, 
-                             initial_state: List[int] | None = None, 
-                             simanneal_minutes: float = 0.1, 
-                             simanneal_steps: int = 100,
-                             n_placements: int = 100, 
-                             show_progress: bool = False, 
-                             strategy: str = None) -> PlacementSolution:
-        
+    def _solve_with_strategy(
+        self,
+        problem: PlacementProblem,
+        width_limit: float | None = None,
+        height_limit: float | None = None,
+        initial_state: list[int] | None = None,
+        simanneal_minutes: float = 0.1,
+        simanneal_steps: int = 100,
+        n_placements: int = 100,
+        show_progress: bool = False,
+        strategy: str | None = None,
+    ) -> PlacementSolution:
         if not initial_state:
             # Initial state (= G_{+} + G_{-} + rotations)
             if width_limit and (width_limit < sys.float_info.max):
                 # As flat as possible along with vertical line
                 init_gp = list(range(problem.n))
                 init_gn = list(reversed(list(range(problem.n))))
-                init_rot = [1 if r["rotatable"] and r["width"] > r["height"] else 0 for r in problem.rectangles]
+                init_rot = [
+                    1 if r["rotatable"] and r["width"] > r["height"] else 0
+                    for r in problem.rectangles
+                ]
             elif height_limit and (height_limit < sys.float_info.max):
                 # As flat as possible along with horizontal line
                 init_gp = list(range(problem.n))
                 init_gn = list(range(problem.n))
-                init_rot = [1 if r["rotatable"] and r["width"] < r["height"] else 0 for r in problem.rectangles]
+                init_rot = [
+                    1 if r["rotatable"] and r["width"] < r["height"] else 0
+                    for r in problem.rectangles
+                ]
             else:
                 # Random sequence pair (shuffle)
                 init_gp = random.sample(list(range(problem.n)), k=problem.n)
@@ -176,10 +204,12 @@ class PlacementSolver(Solver):
         rpp.copy_strategy = "slice"  # We use "slice" since the state is a list
         schedule = rpp.auto(minutes=simanneal_minutes, steps=simanneal_steps)
 
-        #if the number of placements were specified
-        if not (n_placements is None):
-            schedule['steps'] = n_placements #override the number of performed steps as the given
-            schedule['updates'] = n_placements #update the logging after each step
+        # if the number of placements were specified
+        if n_placements is not None:
+            schedule["steps"] = (
+                n_placements  # override the number of performed steps as the given
+            )
+            schedule["updates"] = n_placements  # update the logging after each step
         rpp.set_schedule(schedule)
         final_state, _ = rpp.anneal()
 
@@ -188,113 +218,142 @@ class PlacementSolver(Solver):
         seqpair = PlacementSequencePair(pair=(gp, gn))
         floorplan = seqpair.decode(problem=problem, rotations=rotations)
 
-        data = pandas.DataFrame(rpp.logger)
+        data = pd.DataFrame(rpp.logger)
         data.to_csv(f"Logs/{problem.circuit.name}_simanneal_log.csv")
 
-        return PlacementSolution(sequence_pair=seqpair, floorplan=floorplan, problem=problem)
+        return PlacementSolution(
+            sequence_pair=seqpair, floorplan=floorplan, problem=problem
+        )
 
 
 class PlacementRectanglePackingProblemAnnealerHard(RectanglePackingProblemAnnealerHard):
-    def __init__(self, state: List[int], problem: PlacementProblem, width_limit: float | None = None, height_limit: float | None = None, show_progress: bool = False) -> None:
+    """Class to define a packing problem with a Hard Annealer.
+
+    Hard Annealer generates a solution only if the constraints are satisfied.
+    """
+
+    def __init__(
+        self,
+        state: list[int],
+        problem: PlacementProblem,
+        width_limit: float | None = None,
+        height_limit: float | None = None,
+        show_progress: bool = False,
+    ) -> None:
         super().__init__(state, problem, width_limit, height_limit, show_progress)
         self.logger = {
-            'step' : [],
-            'T' : [],
-            'E' : [],
-            'acceptance' : [],
-            'improvement' : [],
+            "step": [],
+            "temp": [],
+            "energy": [],
+            "acceptance": [],
+            "improvement": [],
         }
 
-    def logging(self, step, T, E, acceptance, improvement):
+    def logging(self, step, temp, energy, acceptance, improvement):
         """Add the actual data to the logger.
 
         Args:
             step (int): Current step
-            T (float): Current temperature
-            E (float): Current energy
+            temp (float): Current temperature
+            energy (float): Current energy
             acceptance (float): Acceptance rate
             improvement (float): Improvement rate
-        """
-        self.logger['step'].append(step)
-        self.logger['T'].append(T)
-        self.logger['E'].append(E)
-        self.logger['acceptance'].append(acceptance)
-        self.logger['improvement'].append(improvement)
 
-    def update(self, step: int, T: int, E: float, acceptance: float, improvement: float) -> None:
-        """Add the logging to the update method.
         """
-        super().update(step, T, E, acceptance, improvement)
-        self.logging(step, T, E, acceptance, improvement)    
+        self.logger["step"].append(step)
+        self.logger["T"].append(temp)
+        self.logger["E"].append(energy)
+        self.logger["acceptance"].append(acceptance)
+        self.logger["improvement"].append(improvement)
 
+    def update(
+        self, step: int, temp: int, energy: float, acceptance: float, improvement: float
+    ) -> None:
+        """Add the logging to the update method."""
+        super().update(step, temp, energy, acceptance, improvement)
+        self.logging(step, temp, energy, acceptance, improvement)
 
     def energy(self) -> float:
+        """Calculate energy of the actual floorplan.
+
+        -> Energy = HPWL + sqrt(congestion)
         """
-        Calculates energy of the actual floorplan.
-            -> Energy = HPWL + sqrt(congestion)
-        """
-        
         # Pick up sequence-pair and rotations from state
         gp, gn, rotations = self.retrieve_pairs(n=self.problem.n, state=self.state)
         seqpair = PlacementSequencePair(pair=(gp, gn))
         floorplan = seqpair.decode(problem=self.problem, rotations=rotations)
-        
+
         # Returns float max, if width/height limit is not satisfied
         if floorplan.bounding_box[0] > self.width_limit:
             return sys.float_info.max
         if floorplan.bounding_box[1] > self.height_limit:
             return sys.float_info.max
 
-        return float(floorplan.HPWL()) + math.sqrt(floorplan.rudy_congestion())
+        return float(floorplan.get_hpwl()) + math.sqrt(floorplan.rudy_congestion())
+
 
 class PlacementRectanglePackingProblemAnnealerSoft(RectanglePackingProblemAnnealerSoft):
-    def __init__(self, state: List[int], problem: PlacementProblem, width_limit: float | None = None, height_limit: float | None = None, show_progress: bool = False) -> None:
+    """Class to define a packing problem with a Soft Annealer.
+
+    Soft Annealer guides the solution towards constraints but may find solutions violating
+    constraints.
+    """
+
+    def __init__(
+        self,
+        state: list[int],
+        problem: PlacementProblem,
+        width_limit: float | None = None,
+        height_limit: float | None = None,
+        show_progress: bool = False,
+    ) -> None:
         super().__init__(state, problem, width_limit, height_limit, show_progress)
         self.logger = {
-            'step' : [],
-            'T' : [],
-            'E' : [],
-            'acceptance' : [],
-            'improvement' : [],
+            "step": [],
+            "temp": [],
+            "energy": [],
+            "acceptance": [],
+            "improvement": [],
         }
 
-    def logging(self, step, T, E, acceptance, improvement):
+    def logging(self, step, temp, energy, acceptance, improvement):
         """Add the actual data to the logger.
 
         Args:
             step (int): Current step
-            T (float): Current temperature
-            E (float): Current energy
+            temp (float): Current temperature
+            energy (float): Current energy
             acceptance (float): Acceptance rate
             improvement (float): Improvement rate
-        """
-        self.logger['step'].append(step)
-        self.logger['T'].append(T)
-        self.logger['E'].append(E)
-        self.logger['acceptance'].append(acceptance)
-        self.logger['improvement'].append(improvement)
 
-    def update(self, step: int, T: int, E: float, acceptance: float, improvement: float) -> None:
-        """Add the logging to the update method.
         """
-        super().update(step, T, E, acceptance, improvement)
-        self.logging(step, T, E, acceptance, improvement)
+        self.logger["step"].append(step)
+        self.logger["temp"].append(temp)
+        self.logger["energy"].append(energy)
+        self.logger["acceptance"].append(acceptance)
+        self.logger["improvement"].append(improvement)
+
+    def update(
+        self, step: int, temp: int, energy: float, acceptance: float, improvement: float
+    ) -> None:
+        """Add the logging to the update method."""
+        super().update(step, temp, energy, acceptance, improvement)
+        self.logging(step, temp, energy, acceptance, improvement)
 
     def energy(self) -> float:
-        """
-        Calculates energy of the actual floorplan.
-            -> Energy = HPWL + sqrt(congestion)
+        """Calculate energy of the actual floorplan.
+
+        -> Energy = HPWL + sqrt(congestion)
         """
         # Pick up sequence-pair and rotations from state
         gp, gn, rotations = self.retrieve_pairs(n=self.problem.n, state=self.state)
         seqpair = PlacementSequencePair(pair=(gp, gn))
         floorplan = seqpair.decode(problem=self.problem, rotations=rotations)
-        
+
         # Returns float max, if width/height limit is not satisfied
         if floorplan.bounding_box[0] > self.width_limit:
             return sys.float_info.max
         if floorplan.bounding_box[1] > self.height_limit:
             return sys.float_info.max
 
-        return float(floorplan.HPWL()) + math.sqrt(floorplan.rudy_congestion())
-
+        return float(floorplan.get_hpwl()) + math.sqrt(floorplan.rudy_congestion())

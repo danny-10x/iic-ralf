@@ -18,54 +18,59 @@
 # ========================================================================
 
 from __future__ import annotations
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from SchematicCapture.Circuit import Circuit
-    from SchematicCapture.Devices import Device
 
-from rectangle_packing_placement.rectangle_packing_solver.problem import Problem
-from Environment.RUDY import RUDY
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from schematic_capture.circuit import Circuit
+    from schematic_capture.devices import Device
+
+from environment.rudy import Rudy
 from PDK.PDK import global_pdk
+from rectangle_packing_placement.rectangle_packing_solver.problem import Problem
+
 
 class PlacementProblem(Problem):
-    """Class to setup a placement problem.
-    """
-    def __init__(self, circuit : Circuit) -> None:
+    """Class to setup a placement problem."""
+
+    def __init__(self, circuit: Circuit) -> None:
         """Init the problem.
 
         Args:
             circuit (Circuit): Circuit of the problem.
+
         """
-        #store the circuit
+        # store the circuit
         self.circuit = circuit
 
-        #setup RUDY of the PDK, for 
-        #wire-density estimation
-        self.rudy = RUDY(global_pdk)
+        # setup RUDY of the PDK, for
+        # wire-density estimation
+        self.rudy = Rudy(global_pdk)
 
-        #store a map between rectangles and devices
+        # store a map between rectangles and devices
         self._rectangle_device_map = {}
 
-        #setup the rectangles of the problem
+        # setup the rectangles of the problem
         rectangles = []
         n_id = 0
-        device : Device
+        device: Device
         for name, device in circuit.devices.items():
             cell = device.cell
             rectangles.append([cell.width, cell.height, 1])
             self._rectangle_device_map[n_id] = name
             n_id += 1
 
-        #setup the rectangle packing problem
+        # setup the rectangle packing problem
         super().__init__(rectangles)
 
-    def id_to_device(self, id : int) -> str:
-        """Maps rectangle id to the device name.
+    def id_to_device(self, idx: int) -> str:
+        """Map rectangle id to the device name.
 
         Args:
-            id (int): Rectangle id.
+            idx (int): Rectangle id.
 
         Returns:
             str: Name of the corresponding device.
+
         """
-        return self._rectangle_device_map[id]
+        return self._rectangle_device_map[idx]

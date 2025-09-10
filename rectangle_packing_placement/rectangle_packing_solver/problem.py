@@ -1,5 +1,11 @@
 # Copyright 2022 Kotaro Terada
 #
+# Copyright 2023 Jakob Ratschenger
+#
+# Modifications:
+# - Modified __init__() to setup a problem by a circuit.
+# - Added id_to_device()
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -12,40 +18,67 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Dict, List, Tuple, Union
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from schematic_capture.Circuit import Circuit
+    from schematic_capture.Devices import Device
+
+from Environment.RUDY import RUDY
+from PDK.PDK import global_pdk
 
 
 class Problem:
-    """
-    A class to represent a rectangle packing problem.
-    """
+    """A class to represent a rectangle packing problem."""
 
-    def __init__(self, rectangles: List[Union[Dict, List, Tuple]]) -> None:
+    def __init__(self, circuit: Circuit) -> None:
+        """Setup the problem.
+
+        Args:
+            circuit (Circuit): Circuit which shall be placed.
+
+        """
+        self.circuit = circuit
+
+        # setup RUDY of the PDK, for
+        # wire-density estimation
+        self.rudy = RUDY(global_pdk)
+
+        # setup the rectangles of the problem
+        rectangles = []
+        device: Device
+        for name, device in circuit.devices.items():
+            cell = device.cell
+            rectangles.append([cell.width, cell.height, 1, name])
+
         self.rectangles = []
         self.n = 0
 
+        self._rectangle_device_map = {}
         if not isinstance(rectangles, list):
             raise TypeError("Invalid argument: 'rectangles' must be a list.")
 
         for r in rectangles:
             if isinstance(r, (list, tuple)):
-                self.rectangles.append(
-                    {
-                        "id": self.n,
-                        "width": r[0],
-                        "height": r[1],
-                        "rotatable": r[2] if len(r) >= 3 else False,
-                    }
-                )
+                self.rectangles.append({
+                    "id": self.n,
+                    "width": r[0],
+                    "height": r[1],
+                    "rotatable": r[2] if len(r) >= 3 else False,
+                    "device_id": r[3],
+                })
+                self._rectangle_device_map[self.n] = r[3]
             elif isinstance(r, dict):
-                self.rectangles.append(
-                    {
-                        "id": self.n,
-                        "width": r["width"],
-                        "height": r["height"],
-                        "rotatable": r["rotatable"] if "rotatable" in r else False,
-                    }
-                )
+                self.rectangles.append({
+                    "id": self.n,
+                    "width": r["width"],
+                    "height": r["height"],
+                    "rotatable": r["rotatable"] if "rotatable" in r else False,
+                    "device_id": r["device_id"],
+                })
+                self._rectangle_device_map[self.n] = r["device_id"]
             else:
                 raise TypeError("A rectangle must be a list, tuple, or dict.")
 
@@ -57,3 +90,6 @@ class Problem:
         s += "'rectangles': " + str(self.rectangles) + "})"
 
         return s
+
+    def id_to_device(self, id: int):
+        return self._rectangle_device_map[id]

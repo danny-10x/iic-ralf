@@ -38,13 +38,13 @@ from torch_geometric.utils.convert import from_networkx
 
 from environment.cell_sliding import cell_slide3
 from environment.rudy import Rudy
-from Magic.DRC import (
+from magic.DRC import (
     DRC_collidates,
     DRC_magic_check_cell,
 )
-from Magic.utils import place_circuit
+from magic.utils import place_circuit
 from PDK.PDK import global_pdk
-from SchematicCapture.circuit import Circuit
+from schematic_capture.circuit import Circuit
 
 
 @dataclass
@@ -446,7 +446,7 @@ class Placement:
 
         self.logger["reward"].append(reward)
         self.logger["congestion"].append(congestion)
-        self.logger["HPWL"].append(Total_Wire_Length)
+        self.logger["HPWL"].append(total_wire_len)
 
         # get the new observation
         observation = self._get_data()
@@ -474,19 +474,20 @@ class Placement:
         # check if placed device generated an DRC error
         if self._use_magic_DRC:
             try:
-                DRC_error = DRC_magic_check_cell(self._name, device_to_place.cell) > 0
-            except:
-                raise Exception("Magic-DRC not available!")
+                drc_error = DRC_magic_check_cell(self._name, device_to_place.cell) > 0
+            except Exception as e:
+                raise Exception("Magic-DRC not available!") from e
         else:
-            DRC_error = DRC_collidates(device_to_place.cell, self._placed_cells)
+            drc_error = DRC_collidates(device_to_place.cell, self._placed_cells)
 
         device_to_place.cell.reset_place()
         device_to_place.cell.place_next()
 
-        return not DRC_error
+        return not drc_error
 
     def save_logs_to_csv(self):
         """Save the logged data to a CSV file.
+
         The file will be located under Logs/<environment_name>_log.csv
         """
         data = self.logger
@@ -556,5 +557,5 @@ class Placement:
         return run
 
     def end_environment(self):
-        """Stops the visualization."""
+        """Stop the visualization."""
         self.stop_pygame()
