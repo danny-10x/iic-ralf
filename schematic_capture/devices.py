@@ -891,7 +891,7 @@ class SubDevice(NTermDevice):
 
         """
         # get the number of terminals from the spice description
-        self._N_Terminals = SubDevice.get_N_Terminals(spice_description)
+        self._N_Terminals = SubDevice.get_num_terminals(spice_description)
         # set the terminal names
         self._terminal_names = terminal_names
         # make sure, the number of terminal names and terminals of the device coincide
@@ -1078,7 +1078,7 @@ class SubDevice(NTermDevice):
         super()._gen_placement_rules()
 
     @staticmethod
-    def get_N_Terminals(spice_description: str) -> int:
+    def get_num_terminals(spice_description: str) -> int:
         """Get the number of terminals.
 
         Args:
@@ -1116,7 +1116,7 @@ class SubDevice(NTermDevice):
 
         """
         model = spice_description.split()[
-            1 + SubDevice.get_N_Terminals(spice_description)
+            1 + SubDevice.get_num_terminals(spice_description)
         ]
 
         return model
