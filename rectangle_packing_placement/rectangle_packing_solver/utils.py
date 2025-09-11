@@ -23,19 +23,17 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from Magic.MagicDie import MagicDie
+    from magic.magic_die import MagicDie
+    from schematic_capture.circuit import Circuit
 
-    from schematic_capture.Circuit import Circuit
 
-
-from Magic.MacroCell import MacroCell
-
+from magic.macro_cell import MacroCell
 from rectangle_packing_solver.cell_sliding import cell_slide3
 from rectangle_packing_solver.problem import Problem
 from rectangle_packing_solver.solver import Solver
 from rectangle_packing_solver.visualizer import Visualizer
-from schematic_capture.Circuit import SubCircuit
-from schematic_capture.Devices import SubDevice
+from schematic_capture.circuit import Circuit, SubCircuit
+from schematic_capture.devices import SubDevice
 from schematic_capture.utils import get_bottom_up_topology
 
 
@@ -47,7 +45,9 @@ def do_placement(
     simanneal_steps=200,
     fig_path=None,
 ) -> Circuit:
-    """Perfom a placement of circuit <circuit> by using a sequence-pair representation of the placement and performing
+    """Perfom a placement of circuit <circuit>.
+
+    By using a sequence-pair representation of the placement and performing
     optimization per simulated annealing.
 
     Args:
@@ -117,13 +117,13 @@ def do_bottom_up_placement(
     circ_dict = {}
 
     # do a placement for each circuit
-    for t, c in placement_order:
-        c: Circuit
-        if c.name in circ_dict:
+    for _, circuit_ in placement_order:
+        circuit_: Circuit
+        if circuit_.name in circ_dict:
             # if the circuit were already placed
             # retrieve the cells position
-            circuit_mapped = c.map_devices_to_netlist()
-            for device_name, device_location in circ_dict[c.name].items():
+            circuit_mapped = circuit_.map_devices_to_netlist()
+            for device_name, device_location in circ_dict[circuit_.name].items():
                 circuit_mapped[device_name].cell.reset_place()
                 circuit_mapped[device_name].cell.place(
                     device_location[0], device_location[1]
@@ -131,33 +131,33 @@ def do_bottom_up_placement(
 
         else:
             # place the circuit
-            if len(c.devices) > 1:
+            if len(circuit_.devices) > 1:
                 best_circuit = do_placement(
-                    c,
+                    circuit_,
                     height_limit=max_height,
                     width_limit=max_width,
                     simanneal_minutes=simanneal_minutes,
                     simanneal_steps=simanneal_steps,
                     fig_path=fig_path,
                 )
-                circ_dict[c.name] = get_cell_locations(best_circuit)
+                circ_dict[circuit_.name] = get_cell_locations(best_circuit)
             else:
                 # if there is only one device, do no placing
-                best_circuit = c
-                circ_dict[c.name] = get_cell_locations(best_circuit)
+                best_circuit = circuit_
+                circ_dict[circuit_.name] = get_cell_locations(best_circuit)
 
-        if type(c) is SubCircuit:
+        if isinstance(circuit_, SubCircuit):
             # if circuit was a sub-circuit, make a macro cell out of the placed cells
-            cells = [circ.cell for circ in list(c.devices.values())]
-            macro = MacroCell(c.name, cells)
-            c.sub_device.set_cell(macro)
+            cells = [circ.cell for circ in list(circuit_.devices.values())]
+            macro = MacroCell(circuit_.name, cells)
+            circuit_.sub_device.set_cell(macro)
 
     # placement done
     # move the devices inside a macro-cell
     # such that they match with the bounding box of the macro
-    for t, c in reversed(placement_order):
-        for d in list(c.devices.values()):
-            if type(d) is SubDevice:
+    for _, circuit_ in reversed(placement_order):
+        for d in list(circuit_.devices.values()):
+            if isinstance(d, SubDevice):
                 d.cell._move_cells_to_bound()
 
 
@@ -171,8 +171,11 @@ def get_cell_locations(circuit: Circuit) -> dict[str, tuple]:
         dict[str, tuple]: key: Name of the device (as in the netlist), (center_point, rotation)
 
     """
-    map = {}
+    device_netlist_map = {}
     for device_name, device in circuit.map_devices_to_netlist().items():
-        map[device_name] = (device.cell.center_point, device.cell.rotation)
+        device_netlist_map[device_name] = (
+            device.cell.center_point,
+            device.cell.rotation,
+        )
 
-    return map
+    return device_netlist_map

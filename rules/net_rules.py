@@ -21,20 +21,21 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from schematic_capture.Net import Net
+from schematic_capture.net import Net
 
 if TYPE_CHECKING:
-    from schematic_capture.Net import Net
+    from schematic_capture.net import Net
 
 import abc
 
-from Rules.Rule import Rule
+from .rule import Rule
 
 
 class NetRule(Rule, metaclass=abc.ABCMeta):
     """A NetRule gets applied on a specific net. E.g. minimum wire-width of an net."""
 
     def __init__(self, *, net: Net, name: str) -> None:
+        """Override default behaviour."""
         super().__init__(name=name)
         self._net = net
         self._net.add_rule(self)  # add the rule to the net
@@ -54,6 +55,7 @@ class MinNetWireWidth(NetRule):
     """Define a minimum wire-width for a net."""
 
     def __init__(self, *, net: Net, min_width: float) -> None:
+        """Override default behaviour."""
         name = f"{self.__class__.__name__}({net.name}, {round(min_width, 2)})"
         super().__init__(net=net, name=name)
         self._min_width = min_width
@@ -73,6 +75,7 @@ class Port(NetRule):
     """Set a net as a port."""
 
     def __init__(self, *, net: Net) -> None:
+        """Override default behaviour."""
         name = f"{self.__class__.__name__}({net.name})"
         super().__init__(net=net, name=name)
 
@@ -81,6 +84,7 @@ class Ports:
     """Set for multiple nets ports."""
 
     def __init__(self, *, nets: list[Net]) -> None:
+        """Initialize ports."""
         for net in nets:
             Port(net=net)
 
@@ -89,6 +93,7 @@ class PowerNet(NetRule):
     """Define a net as a power net. E.g. Vdd, Vss, VGND, ..."""
 
     def __init__(self, *, net: Net) -> None:
+        """Override default behaviour."""
         name = f"{self.__class__.__name__}({net.name})"
         super().__init__(net=net, name=name)
 
@@ -97,5 +102,6 @@ class PowerNets:
     """Define multiple nets as power nets."""
 
     def __init__(self, *, nets: list[Net]) -> None:
+        """Initialize power nets."""
         for net in nets:
             PowerNet(net=net)

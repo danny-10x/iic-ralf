@@ -13,30 +13,38 @@
 # limitations under the License.
 
 from .floorplan import Floorplan
-from .sequence_pair import SequencePair
 from .problem import Problem
+from .sequence_pair import SequencePair
+
 
 class Solution:
-    """
-    A class to represent a rectangle packing solution.
-    """
+    """A class to represent a rectangle packing solution."""
 
-    def __init__(self, sequence_pair: SequencePair, floorplan: Floorplan, problem : Problem) -> None:
-
+    def __init__(
+        self, sequence_pair: SequencePair, floorplan: Floorplan, problem: Problem
+    ) -> None:
+        """Initialize a rectange packing solution."""
         if not isinstance(sequence_pair, SequencePair):
-            raise TypeError("Invalid argument: 'sequence_pair' must be an instance of SequencePair.")
+            raise TypeError(
+                "Invalid argument: 'sequence_pair' must be an instance of SequencePair."
+            )
 
         if not isinstance(floorplan, Floorplan):
-            raise TypeError("Invalid argument: 'floorplan' must be an instance of Floorplan.")
+            raise TypeError(
+                "Invalid argument: 'floorplan' must be an instance of Floorplan."
+            )
 
         if not isinstance(problem, Problem):
-            raise TypeError("Invalid argument: 'problem' must be an instance of Problem.")
+            raise TypeError(
+                "Invalid argument: 'problem' must be an instance of Problem."
+            )
 
         self.sequence_pair = sequence_pair
         self.floorplan = floorplan
         self.problem = problem
-        
+
     def __repr__(self) -> str:
+        """Override default behaviour."""
         s = "Solution({"
         s += "'sequence_pair': " + str(self.sequence_pair) + ", "
         s += "'floorplan': " + str(self.floorplan) + "})"

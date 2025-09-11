@@ -21,18 +21,20 @@ from __future__ import annotations
 
 import abc
 
-class Rule(metaclass = abc.ABCMeta):
-    """Class to represent a rule.
-    """
+
+class Rule(metaclass=abc.ABCMeta):
+    """Abstract class to represent a rule."""
+
     @abc.abstractmethod
-    def __init__(self, *, name : str) -> None:
+    def __init__(self, *, name: str) -> None:
+        """Override default behaviour."""
         self._name = name
-        
 
     def __repr__(self) -> str:
+        """Override default behaviour."""
         cname = self.__class__.__name__
         return f"{cname}(name={self._name})"
-    
+
     def __eq__(self, __value: object) -> bool:
         """Rules are equal if they have the same name.
 
@@ -41,17 +43,20 @@ class Rule(metaclass = abc.ABCMeta):
 
         Returns:
             bool: True if object is a rule, and have the same name.
+
         """
         return (isinstance(__value, Rule)) and (self._name == __value._name)
-    
+
     def __hash__(self) -> int:
+        """Override default behaviour."""
         return hash(self._name)
-    
+
     @property
     def name(self) -> str:
         """Get the name of the rule.
 
         Returns:
             str: Name of the rule.
+
         """
         return self._name

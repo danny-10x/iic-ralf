@@ -18,62 +18,60 @@
 # ========================================================================
 
 import torch
-from torch_geometric.nn import GATConv, MeanAggregation
+import torch.nn as nn
+from torch_geometric.nn import MeanAggregation, SAGEConv
 from torch_geometric.nn.norm import BatchNorm
-import torch.nn.functional as F
 
 
-class GAT_D2RL_Actor(torch.nn.Module):
-    def __init__(self, out_dim_x, out_dim_y):
+class D2RLCritic(nn.Module):
+    """Class to define a d2rl critic.
+
+    Critic network for D2RL, which uses a Graph Convolutional Network (GCN)
+    to process graph data and a D2RL-style MLP to estimate the Q-value.
+    """
+
+    def __init__(self):
+        """Initialize critic network."""
         super().__init__()
-        
-        self.graph_embedding = GATConv(-1, 16, edge_dim=2)
-        self.norm1 = BatchNorm(16)
-        self.graph_embedding2 = GATConv(16, 16, edge_dim=2)
+
+        # Graph Convolutional Network (GCN) layers
+        self.conv1 = SAGEConv(in_channels=-1, out_channels=16)
+        self.norm1 = BatchNorm(in_channels=16)
+        self.conv2 = SAGEConv(in_channels=16, out_channels=16)
         self.mean_aggr = MeanAggregation()
-        
+
         self.norm_lin1 = torch.nn.BatchNorm1d(16)
         self.lin_1 = torch.nn.Linear(16, 16)
         self.norm_lin2 = torch.nn.BatchNorm1d(32)
         self.lin_2 = torch.nn.Linear(32, 16)
         self.norm_lin3 = torch.nn.BatchNorm1d(32)
         self.lin_3 = torch.nn.Linear(32, 16)
-        
-        
-        self.linear_x = torch.nn.Linear(16, out_dim_x)
-        self.linear_y = torch.nn.Linear(16, out_dim_y)
-        self.linear_rot = torch.nn.Linear(16, 4)
-        
-    def forward(self, data):
 
+        # Final output layer for the Q-value
+        self.linear = nn.Linear(in_features=16, out_features=1)
+
+    def forward(self, data):
+        """Make a forward pass."""
         x = data.x
         edge_index = data.edge_index
-        edge_attr = data.edge_attr
         batch = data.batch
-            
-        x_encoded = self.graph_embedding(x, edge_index, edge_attr=edge_attr)
-        x_encoded = F.relu(x_encoded)
-        x_encoded = self.norm1(x_encoded)
-        x_encoded = self.graph_embedding2(x_encoded, edge_index, edge_attr=edge_attr)
-        x_encoded = F.relu(x_encoded)
-        x_encoded = self.mean_aggr(x_encoded, batch)
 
+        x = self.conv1(x, edge_index)
+        x = nn.functional.relu(x)
+        x = self.norm1(x)
+        x = self.conv2(x, edge_index)
+        x = nn.functional.relu(x)
+        x_encoded = self.mean_aggr(x, batch)
         x = self.norm_lin1(x_encoded)
         x = self.lin_1(x)
-        x = F.relu(x)
+        x = nn.functional.relu(x)
         x = self.norm_lin2(torch.concatenate([x, x_encoded], dim=1))
         x = self.lin_2(x)
-        x = F.relu(x)
+        x = nn.functional.relu(x)
         x = self.norm_lin3(torch.concatenate([x, x_encoded], dim=1))
         x = self.lin_3(x)
-        x = F.relu(x)
-        
-        y = self.linear_y(x)
-        y = F.softmax(y, dim=1)
-        xx = self.linear_x(x)
-        xx = F.softmax(xx, dim=1)
-        rot = self.linear_rot(x)
-        rot = F.softmax(rot, dim=1)
+        x = nn.functional.relu(x)
 
-        return xx, y, rot
-        
+        x = self.linear(x)
+
+        return x

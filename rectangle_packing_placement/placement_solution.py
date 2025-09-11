@@ -18,24 +18,34 @@
 # ========================================================================
 
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from rectangle_packing_placement.placement_floorplan import PlacementFloorplan
     from rectangle_packing_placement.placement_problem import PlacementProblem
-    from rectangle_packing_placement.rectangle_packing_solver.sequence_pair import SequencePair
+    from rectangle_packing_placement.rectangle_packing_solver.sequence_pair import (
+        SequencePair,
+    )
 
 from rectangle_packing_placement.rectangle_packing_solver.solution import Solution
 
 
 class PlacementSolution(Solution):
-    """Class to store a placement solution.
-    """
-    def __init__(self, sequence_pair: SequencePair, floorplan: PlacementFloorplan, problem : PlacementProblem) -> None:
+    """Class to store a placement solution."""
+
+    def __init__(
+        self,
+        sequence_pair: SequencePair,
+        floorplan: PlacementFloorplan,
+        problem: PlacementProblem,
+    ) -> None:
+        """Override default behaviour."""
         super().__init__(sequence_pair, floorplan)
         self.problem = problem
 
     def __repr__(self) -> str:
+        """Override default behaviour."""
         s = "PlacementSolution({"
         s += "'sequence_pair': " + str(self.sequence_pair) + ", "
         s += "'floorplan': " + str(self.floorplan) + ", "

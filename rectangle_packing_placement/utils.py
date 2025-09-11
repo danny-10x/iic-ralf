@@ -29,12 +29,12 @@ if TYPE_CHECKING:
 import time
 
 from prettytable import PrettyTable
+from rectangle_packing_solver.cell_sliding import cell_slide3
 
 from magic.macro_cell import MacroCell
 from rectangle_packing_placement.placement_problem import PlacementProblem
 from rectangle_packing_placement.placement_solver import PlacementSolver
 from rectangle_packing_placement.placement_visualizer import PlacementVisualizer
-from rectangle_packing_solver.cell_sliding import cell_slide3
 from schematic_capture.circuit import SubCircuit
 from schematic_capture.devices import SubDevice
 from schematic_capture.utils import get_bottom_up_topology
@@ -98,7 +98,7 @@ def do_placement(
 
     if show_stats:
         name = solution.problem.circuit.name
-        HPWL = solution.floorplan.HPWL()
+        hpwl = solution.floorplan.HPWL()
         congestion = solution.floorplan.rudy_congestion()
         taken_time = int(time.time() - start)
 
@@ -119,7 +119,7 @@ def do_placement(
         table.add_row(["Circuit", name])
         table.add_row(["Time taken [s]", taken_time])
         table.add_row(["Placements", n_placements])
-        table.add_row(["Total HPWL", round(HPWL, 2)])
+        table.add_row(["Total HPWL", round(hpwl, 2)])
         table.add_row(["Congestion", round(congestion, 2)])
         table.add_row(["Total width", width])
         table.add_row(["Total height", height])
@@ -128,9 +128,9 @@ def do_placement(
         print(table)
 
         try:
-            print(table, file=open(f"Logs/Stats/{name}_RP_placement_stats.txt", "w"))
-        except:
-            print(table, file=open(f"Logs/Stats/{name}_RP_placement_stats.txt", "a"))
+            print(table, file=open(f"logs/stats/{name}_RP_placement_stats.txt", "w"))
+        except Exception:
+            print(table, file=open(f"logs/stats/{name}_RP_placement_stats.txt", "a"))
 
     return solution.problem.circuit
 
@@ -151,6 +151,7 @@ def do_bottom_up_placement(
         simanneal_steps (int, optional): Set the maximum steps which will be performed by the annealing. Defaults to 200.
         n_placements (int, optional): Set the number of total placements. Defaults to 100.
         fig_path (_type_, optional): Path to store a figure of the placement. Defaults to None.
+        show_stats (bool): Show stats. Defaults to True.
 
     """
     # get the circuit
@@ -172,13 +173,13 @@ def do_bottom_up_placement(
     circ_dict = {}
 
     # do a placement for each circuit
-    for t, c in placement_order:
-        c: Circuit
-        if c.name in circ_dict:
+    for _, circuit_ in placement_order:
+        circuit_: Circuit
+        if circuit_.name in circ_dict:
             # if the circuit were already placed
             # retrieve the cells position
-            circuit_mapped = c.map_devices_to_netlist()
-            for device_name, device_location in circ_dict[c.name].items():
+            circuit_mapped = circuit_.map_devices_to_netlist()
+            for device_name, device_location in circ_dict[circuit_.name].items():
                 circuit_mapped[device_name].cell.reset_place()
                 circuit_mapped[device_name].cell.place(
                     device_location[0], device_location[1]
@@ -186,9 +187,9 @@ def do_bottom_up_placement(
 
         else:
             # place the circuit
-            if len(c.devices) > 1:
+            if len(circuit_.devices) > 1:
                 best_circuit = do_placement(
-                    c,
+                    circuit_,
                     height_limit=max_height,
                     width_limit=max_width,
                     simanneal_minutes=simanneal_minutes,
@@ -197,25 +198,25 @@ def do_bottom_up_placement(
                     fig_path=fig_path,
                     show_stats=show_stats,
                 )
-                circ_dict[c.name] = get_cell_locations(best_circuit)
+                circ_dict[circuit_.name] = get_cell_locations(best_circuit)
             else:
                 # if there is only one device, do no placing
-                best_circuit = c
-                circ_dict[c.name] = get_cell_locations(best_circuit)
+                best_circuit = circuit_
+                circ_dict[circuit_.name] = get_cell_locations(best_circuit)
 
-        if type(c) is SubCircuit:
+        if isinstance(circuit_, SubCircuit):
             # if circuit was a sub-circuit, make a macro cell out of the placed cells
-            cells = [circ.cell for circ in list(c.devices.values())]
-            macro = MacroCell(c.name, cells)
-            c.sub_device.set_cell(macro)
+            cells = [circ.cell for circ in list(circuit_.devices.values())]
+            macro = MacroCell(circuit_.name, cells)
+            circuit_.sub_device.set_cell(macro)
 
     # placement done
     # move the devices inside a macro-cell
     # such that they match with the bounding box of the macro
-    for t, c in reversed(placement_order):
-        for d in list(c.devices.values()):
-            if type(d) is SubDevice:
-                d.cell._move_cells_to_bound()
+    for _, circuit_ in reversed(placement_order):
+        for dev_ in list(circuit_.devices.values()):
+            if isinstance(dev_, SubDevice):
+                dev_.cell._move_cells_to_bound()
 
 
 def get_cell_locations(circuit: Circuit) -> dict[str, tuple]:
@@ -228,8 +229,11 @@ def get_cell_locations(circuit: Circuit) -> dict[str, tuple]:
         dict[str, tuple]: key: Name of the device (as in the netlist), (center_point, rotation)
 
     """
-    map = {}
+    device_netlist_map = {}
     for device_name, device in circuit.map_devices_to_netlist().items():
-        map[device_name] = (device.cell.center_point, device.cell.rotation)
+        device_netlist_map[device_name] = (
+            device.cell.center_point,
+            device.cell.rotation,
+        )
 
-    return map
+    return device_netlist_map

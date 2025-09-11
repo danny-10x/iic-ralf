@@ -27,12 +27,12 @@ from .solver import Solver
 from .visualizer import Visualizer
 
 __all__ = [
-    "__version__",
-    "__version_info__",
     "Floorplan",
     "Problem",
     "SequencePair",
     "Solution",
     "Solver",
     "Visualizer",
+    "__version__",
+    "__version_info__",
 ]

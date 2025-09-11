@@ -13,24 +13,26 @@
 # limitations under the License.
 
 import graphlib
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 from .floorplan import Floorplan
 from .problem import Problem
 
 
 class ObliqueGrid:
-    def __init__(self, grid: List[List[int]], coordinates: List[Dict]) -> None:
+    """Class to store an oblique grid."""
+
+    def __init__(self, grid: list[list[int]], coordinates: list[dict]) -> None:
+        """Initialize grid."""
         self.grid = grid
         self.coordinates = coordinates
 
 
 class SequencePair:
-    """
-    A class of Sequence-Pair.
-    """
+    """A class of Sequence-Pair."""
 
-    def __init__(self, pair: Tuple[List, List] = ([], [])) -> None:
+    def __init__(self, pair: tuple[list, list] = ([], [])) -> None:
+        """Initialize sequence-pair."""
         if not isinstance(pair, tuple):
             raise TypeError("Invalid argument: 'pair' must be a tuple.")
         if len(pair) != 2:
@@ -41,27 +43,32 @@ class SequencePair:
         self.gn = pair[1]  # G_{-}
 
         if len(self.gp) != len(self.gn):
-            raise ValueError("Lists in the pair must be the same length.")
+            raise ValueError("lists in the pair must be the same length.")
         self.n = len(self.gp)
 
         self.oblique_grid = self.pair_to_obliquegrid(pair=self.pair)
 
-    def decode(self, problem: Problem, rotations: Optional[List] = None) -> Floorplan:
-        """
-        Decode:
-            Based on the sequence pair and the problem with rotations information, calculate a floorplan
-            (bounding box, area, and rectangle positions).
-        """
+    def decode(self, problem: Problem, rotations: list | None = None) -> Floorplan:
+        """Calculate a floorplan.
 
+        Based on the sequence pair and the problem with rotations information, calculate a floorplan
+        (bounding box, area, and rectangle positions).
+        """
         if not isinstance(problem, Problem):
-            raise TypeError("Invalid argument: 'problem' must be an instance of Problem.")
+            raise TypeError(
+                "Invalid argument: 'problem' must be an instance of Problem."
+            )
 
         if problem.n != self.n:
-            raise ValueError("'problem.n' must be the same as the sequence-pair length.")
+            raise ValueError(
+                "'problem.n' must be the same as the sequence-pair length."
+            )
 
         if rotations is not None:
             if len(rotations) != self.n:
-                raise ValueError("'rotations' length must be the same as the sequence-pair length.")
+                raise ValueError(
+                    "'rotations' length must be the same as the sequence-pair length."
+                )
 
         coords = self.oblique_grid.coordinates
 
@@ -81,11 +88,13 @@ class SequencePair:
 
         # Calculate the longest path in the "Horizontal Constraint Graph" (G_h)
         # This time complexity is O(n^2), may be optimized...
-        graph_h: Dict[int, List] = {i: [] for i in range(self.n)}
+        graph_h: dict[int, list] = {i: [] for i in range(self.n)}
         for i in range(self.n):
             for j in range(self.n):
                 # When j is right of i, set an edge from j to i
-                if (coords[i]["a"] < coords[j]["a"]) and (coords[i]["b"] < coords[j]["b"]):
+                if (coords[i]["a"] < coords[j]["a"]) and (
+                    coords[i]["b"] < coords[j]["b"]
+                ):
                     graph_h[j].append(i)
 
         # Topological order of DAG (G_h)
@@ -100,11 +109,13 @@ class SequencePair:
 
         # Calculate the longest path in the "Vertical Constraint Graph" (G_v)
         # This time complexity is O(n^2), may be optimized...
-        graph_v: Dict[int, List] = {i: [] for i in range(self.n)}
+        graph_v: dict[int, list] = {i: [] for i in range(self.n)}
         for i in range(self.n):
             for j in range(self.n):
                 # When j is above i, set an edge from j to i
-                if (coords[i]["a"] > coords[j]["a"]) and (coords[i]["b"] < coords[j]["b"]):
+                if (coords[i]["a"] > coords[j]["a"]) and (
+                    coords[i]["b"] < coords[j]["b"]
+                ):
                     graph_v[j].append(i)
 
         # Topological order of DAG (G_v)
@@ -120,35 +131,31 @@ class SequencePair:
         # Calculate bottom-left positions
         positions = []
         for i in range(self.n):
-            positions.append(
-                {
-                    "id": i,
-                    "x": dist_h[i] - width_wrot[i],  # distance from left edge
-                    "y": dist_v[i] - height_wrot[i],  # distande from bottom edge
-                    "width": width_wrot[i],
-                    "height": height_wrot[i],
-                    "rotation": rotations[i],
-                }
-            )
+            positions.append({
+                "id": i,
+                "x": dist_h[i] - width_wrot[i],  # distance from left edge
+                "y": dist_v[i] - height_wrot[i],  # distande from bottom edge
+                "width": width_wrot[i],
+                "height": height_wrot[i],
+                "rotation": rotations[i],
+            })
 
-        return Floorplan(bounding_box=(bb_width, bb_height), positions=positions, problem=problem)
+        return Floorplan(
+            bounding_box=(bb_width, bb_height), positions=positions, problem=problem
+        )
 
     def encode(self) -> None:
-        """
-        Encode:
-            TODO
-        """
+        """Generate sequence pairs and rotations from floorplan."""
+        # TODO
         raise NotImplementedError()
 
     def __repr__(self) -> str:
+        """Override default behaviour."""
         return "SequencePair(" + str(self.pair) + ")"
 
     @classmethod
-    def pair_to_obliquegrid(cls, pair: Tuple[List, List]) -> ObliqueGrid:
-        """
-        Convert a Sequence-pair (a tuple of G_{+} and G_{-}) to Oblique-grid.
-        """
-
+    def pair_to_obliquegrid(cls, pair: tuple[list, list]) -> ObliqueGrid:
+        """Convert a Sequence-pair (a tuple of G_{+} and G_{-}) to Oblique-grid."""
         n = len(pair[0])
         gp = pair[0]
         gn = pair[1]
@@ -167,11 +174,8 @@ class SequencePair:
         return ObliqueGrid(grid=grid, coordinates=coordinates)
 
     @classmethod
-    def obliquegrid_to_pair(cls, oblique_grid: ObliqueGrid) -> Tuple[List, List]:
-        """
-        Convert an Oblique-grid to Sequence-pair (a tuple of G_{+} and G_{-}).
-        """
-
+    def obliquegrid_to_pair(cls, oblique_grid: ObliqueGrid) -> tuple[list, list]:
+        """Convert an Oblique-grid to Sequence-pair (a tuple of G_{+} and G_{-})."""
         n = len(oblique_grid.grid)
         gp = [-1 for _ in range(n)]  # G_{+}
         gn = [-1 for _ in range(n)]  # G_{-}
@@ -191,7 +195,9 @@ class SequencePair:
     ################################################################
 
     def __eq__(self, other: Any) -> Any:
+        """Override default behaviour."""
         return self.pair == other.pair
 
     def __ne__(self, other: Any) -> Any:
+        """Override default behaviour."""
         return not self.__eq__(other)

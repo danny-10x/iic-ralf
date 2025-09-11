@@ -23,10 +23,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from schematic_capture.Circuit import Circuit
-    from schematic_capture.Devices import Device
+    from schematic_capture.circuit import Circuit
+    from schematic_capture.devices import Device
 
-from Environment.RUDY import RUDY
+from environment.rudy import Rudy
 from PDK.PDK import global_pdk
 
 
@@ -34,7 +34,7 @@ class Problem:
     """A class to represent a rectangle packing problem."""
 
     def __init__(self, circuit: Circuit) -> None:
-        """Setup the problem.
+        """Initialize the problem.
 
         Args:
             circuit (Circuit): Circuit which shall be placed.
@@ -44,7 +44,7 @@ class Problem:
 
         # setup RUDY of the PDK, for
         # wire-density estimation
-        self.rudy = RUDY(global_pdk)
+        self.rudy = Rudy(global_pdk)
 
         # setup the rectangles of the problem
         rectangles = []
@@ -85,11 +85,13 @@ class Problem:
             self.n += 1
 
     def __repr__(self) -> str:
+        """Override default behaviour."""
         s = "Problem({"
         s += "'n': " + str(self.n) + ", "
         s += "'rectangles': " + str(self.rectangles) + "})"
 
         return s
 
-    def id_to_device(self, id: int):
-        return self._rectangle_device_map[id]
+    def id_to_device(self, idx: int):
+        """Return device from id."""
+        return self._rectangle_device_map[idx]

@@ -19,7 +19,6 @@
 from __future__ import annotations
 
 import graphlib
-from typing import Dict, List
 
 from rectangle_packing_placement.placement_floorplan import PlacementFloorplan
 from rectangle_packing_placement.rectangle_packing_solver.problem import Problem
@@ -29,10 +28,13 @@ from rectangle_packing_placement.rectangle_packing_solver.sequence_pair import (
 
 
 class PlacementSequencePair(SequencePair):
+    """Class to store a placement sequence pair."""
+
     def decode(
-        self, problem: Problem, rotations: List | None = None
+        self, problem: Problem, rotations: list | None = None
     ) -> PlacementFloorplan:
-        """Decode:
+        """Generate a floorplan based on sequence pair to satisfy given problem.
+
         Based on the sequence pair and the problem with rotations information, calculate a floorplan
         (bounding box, area, and rectangle positions).
         """
@@ -70,7 +72,7 @@ class PlacementSequencePair(SequencePair):
 
         # Calculate the longest path in the "Horizontal Constraint Graph" (G_h)
         # This time complexity is O(n^2), may be optimized...
-        graph_h: Dict[int, List] = {i: [] for i in range(self.n)}
+        graph_h: dict[int, list] = {i: [] for i in range(self.n)}
         for i in range(self.n):
             for j in range(self.n):
                 # When j is right of i, set an edge from j to i
@@ -91,7 +93,7 @@ class PlacementSequencePair(SequencePair):
 
         # Calculate the longest path in the "Vertical Constraint Graph" (G_v)
         # This time complexity is O(n^2), may be optimized...
-        graph_v: Dict[int, List] = {i: [] for i in range(self.n)}
+        graph_v: dict[int, list] = {i: [] for i in range(self.n)}
         for i in range(self.n):
             for j in range(self.n):
                 # When j is above i, set an edge from j to i

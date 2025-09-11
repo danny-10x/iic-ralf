@@ -5,7 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
-    "matplotlib==3.5.1",
+    "matplotlib>=3.7",
     "myst-parser>=3.0.1",
     "networkx==3.1",
     "numpy==1.25.1",

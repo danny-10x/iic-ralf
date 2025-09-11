@@ -19,13 +19,18 @@
 
 import torch.nn as nn
 
-class GAT_Policy(nn.Module):
+
+class D2RLPolicy(nn.Module):
+    """Class to define a d2rl actor-critic."""
+
     def __init__(self, actor, critic) -> None:
+        """Initialize an actor-critic network."""
         super().__init__()
         self.actor = actor
         self.critic = critic
-    
+
     def forward(self, data):
+        """Make a forward pass."""
         action_pred = self.actor(data)
         value_pred = self.critic(data)
 

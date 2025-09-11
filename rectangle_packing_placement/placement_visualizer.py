@@ -20,18 +20,28 @@
 
 
 from __future__ import annotations
-from typing import TYPE_CHECKING
+
+import matplotlib.patches as patches
+import matplotlib.pyplot as plt
 
 from rectangle_packing_placement.placement_solution import PlacementSolution
-
 from rectangle_packing_placement.rectangle_packing_solver.visualizer import Visualizer
-import matplotlib.patches as patches
-from matplotlib import pylab as plt
+
 
 class PlacementVisualizer(Visualizer):
-    def visualize(self, solution: PlacementSolution, path: str = "floorplan.png", title: str = "Floorplan") -> None:
+    """Class to define a placement visualizer."""
+
+    def visualize(
+        self,
+        solution: PlacementSolution,
+        path: str = "floorplan.png",
+        title: str = "Floorplan",
+    ) -> None:
+        """Visualize given placement solution."""
         if not isinstance(solution, PlacementSolution):
-            raise TypeError("Invalid argument: 'solution' must be an instance of PlacementSolution.")
+            raise TypeError(
+                "Invalid argument: 'solution' must be an instance of PlacementSolution."
+            )
 
         positions = solution.floorplan.positions
         bounding_box = solution.floorplan.bounding_box
@@ -65,9 +75,19 @@ class PlacementVisualizer(Visualizer):
 
             # Add text label
             centering_offset = 0.011
-            center_x = rectangle["x"] + rectangle["width"] / 2 - bb_width * centering_offset
-            center_y = rectangle["y"] + rectangle["height"] / 2 - bb_height * centering_offset
-            ax.text(x=center_x, y=center_y, s=problem.id_to_device(rectangle["id"]), fontsize=18, color=fontcolor)
+            center_x = (
+                rectangle["x"] + rectangle["width"] / 2 - bb_width * centering_offset
+            )
+            center_y = (
+                rectangle["y"] + rectangle["height"] / 2 - bb_height * centering_offset
+            )
+            ax.text(
+                x=center_x,
+                y=center_y,
+                s=problem.id_to_device(rectangle["id"]),
+                fontsize=18,
+                color=fontcolor,
+            )
 
         # Output
         if path is None:

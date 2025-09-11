@@ -40,6 +40,7 @@ class Floorplan:
         problem: Problem,
         area: int | float = -1.0,
     ) -> None:
+        """Initialize a floorplan."""
         self.positions = positions
         self.problem = problem
 
@@ -73,7 +74,7 @@ class Floorplan:
         self.HPWL = 0
         for _, net in circuit._nets.items():
             net: Net
-            self.HPWL += net.HPWL()
+            self.HPWL += net.get_hpwl()
 
         # calculate the estimated congestion of the placement
         self.congestion = 0
@@ -84,6 +85,7 @@ class Floorplan:
         self.congestion = rudy.congestion()
 
     def __repr__(self) -> str:
+        """Override default behaviour."""
         s = "Floorplan({"
         s += "'positions': " + str(self.positions) + ", "
         s += "'bounding_box': " + str(self.bounding_box) + ", "

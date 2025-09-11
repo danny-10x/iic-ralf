@@ -240,6 +240,7 @@ class PlacementRectanglePackingProblemAnnealerHard(RectanglePackingProblemAnneal
         height_limit: float | None = None,
         show_progress: bool = False,
     ) -> None:
+        """Override default behaviour."""
         super().__init__(state, problem, width_limit, height_limit, show_progress)
         self.logger = {
             "step": [],
@@ -307,6 +308,7 @@ class PlacementRectanglePackingProblemAnnealerSoft(RectanglePackingProblemAnneal
         height_limit: float | None = None,
         show_progress: bool = False,
     ) -> None:
+        """Override default behaviour."""
         super().__init__(state, problem, width_limit, height_limit, show_progress)
         self.logger = {
             "step": [],

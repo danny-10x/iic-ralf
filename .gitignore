@@ -38,3 +38,6 @@ instance/
 .idea/
 *.sublime-project
 Thumbs.db
+
+# Ignore PyTorch model weight files
+*.pth

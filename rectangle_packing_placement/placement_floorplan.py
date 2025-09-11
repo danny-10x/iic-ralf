@@ -35,7 +35,7 @@ class PlacementFloorplan(Floorplan):
 
     def __init__(
         self,
-        positions: list[dict],
+        positions: tuple[dict, ...],
         bounding_box: tuple,
         problem: PlacementProblem,
         area: int | float = -1,
@@ -81,7 +81,7 @@ class PlacementFloorplan(Floorplan):
         hpwl = 0
         for _, net in self.circuit.nets.items():
             net: Net
-            hpwl += net.HPWL()
+            hpwl += net.get_hpwl()
         return hpwl
 
     def rudy_congestion(self) -> float:

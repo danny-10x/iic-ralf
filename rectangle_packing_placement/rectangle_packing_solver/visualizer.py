@@ -12,26 +12,29 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Tuple
-
+import matplotlib as mpl
 import matplotlib.patches as patches
-from matplotlib import pylab as plt
+import matplotlib.pyplot as plt
 
 from .solution import Solution
 
 
 class Visualizer:
-    """
-    A floorplan visualizer.
-    """
+    """A floorplan visualizer."""
 
     def __init__(self) -> None:
+        """Initialize visualizer."""
         # Default font size is 12
         plt.rcParams["font.size"] = 14
 
-    def visualize(self, solution: Solution, path: str = "floorplan.png", title: str = "Floorplan") -> None:
+    def visualize(
+        self, solution: Solution, path: str = "floorplan.png", title: str = "Floorplan"
+    ) -> None:
+        """Visualize given solution."""
         if not isinstance(solution, Solution):
-            raise TypeError("Invalid argument: 'solution' must be an instance of Solution.")
+            raise TypeError(
+                "Invalid argument: 'solution' must be an instance of Solution."
+            )
 
         positions = solution.floorplan.positions
         bounding_box = solution.floorplan.bounding_box
@@ -65,9 +68,19 @@ class Visualizer:
 
             # Add text label
             centering_offset = 0.011
-            center_x = rectangle["x"] + rectangle["width"] / 2 - bb_width * centering_offset
-            center_y = rectangle["y"] + rectangle["height"] / 2 - bb_height * centering_offset
-            ax.text(x=center_x, y=center_y, s=problem.id_to_device(rectangle["id"]), fontsize=18, color=fontcolor)
+            center_x = (
+                rectangle["x"] + rectangle["width"] / 2 - bb_width * centering_offset
+            )
+            center_y = (
+                rectangle["y"] + rectangle["height"] / 2 - bb_height * centering_offset
+            )
+            ax.text(
+                x=center_x,
+                y=center_y,
+                s=problem.id_to_device(rectangle["id"]),
+                fontsize=18,
+                color=fontcolor,
+            )
 
         # Output
         if path is None:
@@ -78,11 +91,9 @@ class Visualizer:
         plt.close()
 
     @classmethod
-    def get_color(cls, i: int = 0) -> Tuple[str, str]:
-        """
-        Gets rectangle face color (and its font color) from matplotlib cmap.
-        """
-        cmap = plt.get_cmap("tab10")
+    def get_color(cls, i: int = 0) -> tuple[str, str]:
+        """Get rectangle face color (and its font color) from matplotlib cmap."""
+        cmap = mpl.colormaps.get_cmap("tab10")
         color = cmap(i % cmap.N)
         brightness = max(color[0], color[1], color[2])
 

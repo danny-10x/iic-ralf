@@ -63,6 +63,7 @@ def get_nets_and_pins(circuit: Circuit) -> dict[Net, list[Pin]]:
 
 
 def add_to_dict(net, d, nets):
+    """Add nets to dict."""
     if net in nets:
         nets[net].extend(d)
     else:
