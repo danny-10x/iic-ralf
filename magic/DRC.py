@@ -20,15 +20,19 @@
 # ========================================================================
 
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
-    from Magic.Cell import Cell
+    from magic.cell import Cell
 
 import os
 import shutil
+import subprocess
 
-def DRC_collidates(cell : Cell, cells : list[Cell]) -> bool:
-    """Checks if <cell> collidates with one of <cells>  
+
+def drc_collidates(cell: Cell, cells: list[Cell]) -> bool:
+    """Check if <cell> collidates with one of <cells>.
 
     Args:
         cell (Cell): Cell which gets checked.
@@ -36,31 +40,33 @@ def DRC_collidates(cell : Cell, cells : list[Cell]) -> bool:
 
     Returns:
         bool: True if cell collidates with one of cells.
+
     """
     for c in cells:
         if cell.collidates(c):
             return True
-        
+
     return False
 
-def DRC_collidates_all(cells : list[Cell]) -> bool:
-    """Checks if one of the cells collidates with another.
+
+def drc_collidates_all(cells: list[Cell]) -> bool:
+    """Check if one of the cells collidates with another.
 
     Args:
         cells (list(Cell)): Cells which shall be checked
 
     Returns:
         bool: True if cells collidate.
-    """
 
-    for i in range(len(cells)-1):
-        if DRC_collidates(cells[i], cells[i+1:]):
+    """
+    for i in range(len(cells) - 1):
+        if drc_collidates(cells[i], cells[i + 1 :]):
             return True
-        
+
     return False
 
 
-def DRC_magic_all(name : str) -> int:
+def drc_magic_all(name: str) -> int:
     """Check if the placement with name <name>, has DRC errors.
 
     Args:
@@ -71,67 +77,71 @@ def DRC_magic_all(name : str) -> int:
 
     Returns:
         int: Number of DRC errors
+
     """
-    #check if Placement exists
-    if os.path.exists(f'Magic/Placement/{name}.mag'):
-        #if DRC folder exists delete it
-        if os.path.exists('Magic/Placement/DRC_Result'):
-            shutil.rmtree('Magic/Placement/DRC_Result')
+    # check if Placement exists
+    if os.path.exists(f"magic/placement/{name}.mag"):
+        # if DRC folder exists delete it
+        if os.path.exists("magic/placement/drc_result"):
+            shutil.rmtree("magic/placement/drc_result")
 
-        #make the DRC folder
-        os.makedirs('Magic/Placement/DRC_Result')
+        # make the DRC folder
+        os.makedirs("magic/placement/drc_result")
         act_dir = os.getcwd()
-        os.chdir('Magic/Placement/DRC_Result')
+        os.chdir("magic/placement/drc_result")
 
-        #perform the DRC check in magic.
-        os.system(f'bash {act_dir}/Magic/magic_drc.sh ../{name}.mag')
+        # perform the DRC check in magic.
+        os.system(f"bash {act_dir}/magic/magic_drc.sh ../{name}.mag")
 
-        with open(f'{name}.magic.drc.rpt') as file:
-            for line in file:
-                pass
-            last_line = line
+        last_line = subprocess.check_output(["tail", "-1", f"{name}.magic.drc.rpt"])
 
-        DRC_errors = eval(last_line)
+        drc_errors = eval(last_line)
 
-        os.chdir(act_dir)        
-        return DRC_errors
+        os.chdir(act_dir)
+        return drc_errors
     else:
         raise FileNotFoundError
-    
-def DRC_magic_check_cell(layout_name : str, cell : Cell) -> int:
+
+
+def drc_magic_check_cell(layout_name: str, cell: Cell) -> int:
     """Check if the cell <cell> of placement with name <name>, has DRC errors.
 
     Args:
-        name (str): Name of the placement.
+        layout_name (str): Name of the placement.
+        cell (Cell): Cell to check DRC.
 
     Raises:
         FileNotFoundError: If the .mag file of the placement can't be found.
 
     Returns:
         int: Number of DRC errors
+
     """
-    #check if Placement exists
-    if os.path.exists(f'Magic/Placement/{layout_name}.mag'):
-        #if DRC folder exists delete it
-        if os.path.exists('Magic/Placement/DRC_Result'):
-            shutil.rmtree('Magic/Placement/DRC_Result')
+    # check if Placement exists
+    if os.path.exists(f"magic/placement/{layout_name}.mag"):
+        # if DRC folder exists delete it
+        if os.path.exists("magic/placement/drc_result"):
+            shutil.rmtree("magic/placement/drc_result")
 
         box = cell.get_bounding_box()
 
-        #make the DRC folder
-        os.makedirs('Magic/Placement/DRC_Result')
+        # make the DRC folder
+        os.makedirs("magic/placement/drc_result")
         act_dir = os.getcwd()
-        os.chdir('Magic/Placement/DRC_Result')
-        os.system(f'bash {act_dir}/Magic/magic_drc.sh -b {box[0]} -b {box[1]} -b {box[2]} -b {box[3]} ../{layout_name}.mag')
+        os.chdir("magic/placement/drc_result")
+        os.system(
+            f"bash {act_dir}/magic/magic_drc.sh -b {box[0]} -b {box[1]} -b {box[2]} -b {box[3]} ../{layout_name}.mag"
+        )
 
-        with open(f'{layout_name}.magic.drc.rpt') as file:
-            for line in file:
-                pass
-            last_line = line
+        last_line = subprocess.check_output([
+            "tail",
+            "-1",
+            f"{layout_name}.magic.drc.rpt",
+        ])
 
-        DRC_errors = eval(last_line)
+        drc_errors = eval(last_line)
 
-        os.chdir(act_dir)        
-        return DRC_errors
+        os.chdir(act_dir)
+        return drc_errors
     else:
         raise FileNotFoundError

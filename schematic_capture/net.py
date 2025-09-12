@@ -23,14 +23,13 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from Magic.MagicDie import MagicDiePin
-    from Magic.MagicTerminal import MagicTerminal
-
-    from Rules.NetRules import NetRule
+    from magic.magic_die import MagicDiePin
+    from magic.magic_terminal import MagicTerminal
+    from rules.net_rules import NetRule
     from schematic_capture.circuit import Circuit, SubCircuit
-    from schematic_capture.Devices import Device
+    from schematic_capture.devices import Device
 
-from schematic_capture.Devices import PrimitiveDevice, SubDevice
+from schematic_capture.devices import PrimitiveDevice, SubDevice
 
 
 class Net:

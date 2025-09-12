@@ -190,7 +190,7 @@ class DifferentialPair(PrimitiveDeviceComposition):
         for terminal in ["D1", "D2", "G1", "G2", "S", "B"]:
             self._terminals[terminal] = Pin(terminal, self)
 
-    def _gen_placement_rules(self):
+    def _gen_placement_spacing_rules(self):
         """Generate placement rules for the differential pair.
 
         Raises:
@@ -211,7 +211,7 @@ class DifferentialPair(PrimitiveDeviceComposition):
         else:
             raise ValueError("No valid model for placement-rule given!")
 
-        super()._gen_placement_rules()
+        super()._gen_placement_spacing_rules()
 
     def _generate_routing_rules(self) -> list[RoutingRule]:
         return super()._generate_routing_rules()
@@ -320,7 +320,7 @@ class DifferentialLoad(PrimitiveDeviceComposition):
         for terminal in ["D1", "D2", "S1", "S2", "G", "B"]:
             self._terminals[terminal] = Pin(terminal, self)
 
-    def _gen_placement_rules(self):
+    def _gen_placement_spacing_rules(self):
         if "nfet" in self.model:
             pass
         elif "pfet" in self.model:
@@ -335,7 +335,7 @@ class DifferentialLoad(PrimitiveDeviceComposition):
         else:
             raise ValueError("No valid model for placement-rule given!")
 
-        super()._gen_placement_rules()
+        super()._gen_placement_spacing_rules()
 
     def _generate_routing_rules(self) -> list[RoutingRule]:
         return super()._generate_routing_rules()
@@ -442,7 +442,7 @@ class CrossCoupledPair(PrimitiveDeviceComposition):
         for terminal in ["D1", "D2", "S1", "S2", "B"]:
             self._terminals[terminal] = Pin(terminal, self)
 
-    def _gen_placement_rules(self):
+    def _gen_placement_spacing_rules(self):
         if "nfet" in self.model:
             pass
         elif "pfet" in self.model:
@@ -457,7 +457,7 @@ class CrossCoupledPair(PrimitiveDeviceComposition):
         else:
             raise ValueError("No valid model for placement-rule given!")
 
-        super()._gen_placement_rules()
+        super()._gen_placement_spacing_rules()
 
     def _generate_routing_rules(self) -> list[RoutingRule]:
         return super()._generate_routing_rules()

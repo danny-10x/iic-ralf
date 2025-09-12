@@ -39,8 +39,8 @@ from torch_geometric.utils.convert import from_networkx
 from environment.cell_sliding import cell_slide3
 from environment.rudy import Rudy
 from magic.DRC import (
-    DRC_collidates,
-    DRC_magic_check_cell,
+    drc_collidates,
+    drc_magic_check_cell,
 )
 from magic.utils import place_circuit
 from PDK.PDK import global_pdk
@@ -474,11 +474,11 @@ class Placement:
         # check if placed device generated an DRC error
         if self._use_magic_DRC:
             try:
-                drc_error = DRC_magic_check_cell(self._name, device_to_place.cell) > 0
+                drc_error = drc_magic_check_cell(self._name, device_to_place.cell) > 0
             except Exception as e:
                 raise Exception("Magic-DRC not available!") from e
         else:
-            drc_error = DRC_collidates(device_to_place.cell, self._placed_cells)
+            drc_error = drc_collidates(device_to_place.cell, self._placed_cells)
 
         device_to_place.cell.reset_place()
         device_to_place.cell.place_next()

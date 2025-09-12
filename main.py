@@ -19,15 +19,24 @@
 # SPDX-License-Identifier: Apache-2.0
 # ========================================================================
 import argparse
+import os
+import sys
 
 
 def main():
     """Run the automated analog layout flow."""
+    # Check if the operating system is Unix-like (posix)
+    if os.name != "posix":
+        print(
+            "Error: This script is designed to run on a Unix-like system (e.g., Linux or macOS)."
+        )
+        sys.exit(1)
+
     parser = argparse.ArgumentParser(description="Run automated analog layout flow.")
     parser.add_argument(
         "--circuit_file",
         type=str,
-        default="Circuits/Examples/DiffAmp.spice",
+        default="circuits/examples/DiffAmp.spice",
         help="Input spice-netlist",
     )
     parser.add_argument(

@@ -22,16 +22,16 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from schematic_capture.Devices import Device
-    from schematic_capture.Netlist import Netlist
-    from schematic_capture.Primitives import PrimitiveDeviceComposition
+    from schematic_capture.devices import Device
+    from schematic_capture.netlist import Netlist
+    from schematic_capture.primitives import PrimitiveDeviceComposition
 import copy
 from collections import OrderedDict
 
 import matplotlib.pyplot as plt
 import networkx as nx
 
-from schematic_capture.Devices import (
+from schematic_capture.devices import (
     MOS,
     Capacitor,
     NTermDevice,

@@ -23,6 +23,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from magic.cell import Cell
+    from magic.macro_cell import MacroCell
     from rules.routing_rules import RoutingRule
     from schematic_capture.circuit import SubCircuit
     from schematic_capture.net import Net
@@ -30,8 +31,8 @@ if TYPE_CHECKING:
 import abc
 from collections import OrderedDict
 
-import rules.placement_rules as placement_rules
 from PDK.PDK import global_pdk
+from rules.placement_rules import MacroSpacing, PlacementRule, PlacementRules, Spacing
 from rules.routing_rules import ObstacleRule, RoutingRule
 from schematic_capture.ports import Pin, SubDevicePin
 
@@ -90,8 +91,9 @@ class Device(metaclass=abc.ABCMeta):
         self._cell: Cell
         self._cell = None  # stores the cell of the device
 
-        self._placement_rules: placement_rules
-        self._placement_rules = None  # stores the placement rules of the device
+        self._placement_rules: PlacementRules = (
+            None  # stores the placement rules of the device
+        )
 
         self._features: dict[str, int | float]
         self._features = {}  # dict to store the features of an device
@@ -299,7 +301,7 @@ class Device(metaclass=abc.ABCMeta):
         self._cell.add_terminals()
 
         # generate placement rules, induced from the device and cell
-        self._gen_placement_rules()
+        self._gen_placement_spacing_rules()
 
     def _set_params(self):
         """Set the parameters of the device."""
@@ -327,7 +329,7 @@ class Device(metaclass=abc.ABCMeta):
                 self._parameters[p_splitted[0]] = evald
 
     @abc.abstractmethod
-    def _gen_placement_rules(self):
+    def _gen_placement_spacing_rules(self):
         """Generate placement rules for the device."""
         self._cell.set_placement_rules(self._placement_rules)
 
@@ -399,17 +401,17 @@ class NTermDevice(Device, metaclass=abc.ABCMeta):
     E.g. MOS is a 4-term device.
     """
 
-    def __init__(self, spice_description: str, N_Terminals: int, name_suffix=""):
+    def __init__(self, spice_description: str, n_terminals: int, name_suffix=""):
         """Initialize a N-terminal device.
 
         Args:
             spice_description (str): Spice description of the device.
-            N_Terminals (int): Number of terminals.
+            n_terminals (int): Number of terminals.
             name_suffix (str, optional): Suffix to extend the spice-name of the device. Defaults to ''.
 
         """
         super().__init__(spice_description, name_suffix)
-        self._N_Terminals = N_Terminals
+        self._n_terminals = n_terminals
 
         # setup the nets of the device
         self._set_nets()
@@ -425,7 +427,7 @@ class NTermDevice(Device, metaclass=abc.ABCMeta):
         """Set up the nets dict, with the names of the nets connected to the device."""
         splitted = self._spice_splitted
         # iterate over the terminal names
-        for i in range(self._N_Terminals):
+        for i in range(self._n_terminals):
             # register the net name in the nets dict
             self._nets[splitted[i + 1]] = None
             # register the net-name in the terminals net names
@@ -494,8 +496,7 @@ class NTermDevice(Device, metaclass=abc.ABCMeta):
         return terminal_names
 
     def get_terminals_connected_to_net(self, net: Net) -> list[Pin]:
-        """Get a list, which contains all terminals of the device
-            connected to the net <net>.
+        """Get a list, which contains all terminals of the device connected to the net <net>.
 
         Args:
             net (Net): Net connected to terminals of the device.
@@ -506,7 +507,7 @@ class NTermDevice(Device, metaclass=abc.ABCMeta):
         """
         terminals = []
         # iterate over the terminals
-        for terminal_name, terminal in self.terminals.items():
+        for _, terminal in self.terminals.items():
             if net == terminal.net:
                 # if the net is connected to the terminal
                 # add it to the list
@@ -525,7 +526,7 @@ class PrimitiveDevice(NTermDevice, metaclass=abc.ABCMeta):
     def __init__(
         self,
         spice_description: str,
-        N_Terminals: int,
+        n_terminals: int,
         name_suffix="",
         use_dummies=False,
     ):
@@ -533,12 +534,12 @@ class PrimitiveDevice(NTermDevice, metaclass=abc.ABCMeta):
 
         Args:
             spice_description (str): Spice description of the device.
-            N_Terminals (int): Number of terminals.
+            n_terminals (int): Number of terminals.
             name_suffix (str, optional): Name suffix of the device. Defaults to ''.
             use_dummies (bool, optional): If the device uses dummies. Defaults to False.
 
         """
-        super().__init__(spice_description, N_Terminals, name_suffix)
+        super().__init__(spice_description, n_terminals, name_suffix)
 
         # a primitive device can be directly instantiated in magic
         # store parameters for the instantiation in a dict.
@@ -605,6 +606,7 @@ class Resistor(PrimitiveDevice):
     """Class for a resistor."""
 
     def __init__(self, spice_description, name_suffix=""):
+        """Initialize a resistor."""
         raise NotImplementedError
         # super().__init__(spice_description, 2, name_suffix)
 
@@ -664,12 +666,12 @@ class ThreeTermResistor(PrimitiveDevice):
         self._terminals["S"] = Pin("S", self)
         self._terminals["B"] = Pin("B", self)
 
-    def _gen_placement_rules(self):
+    def _gen_placement_spacing_rules(self):
         """Generate the placement rules for the device."""
         # needs no spacing rule
         # since the resistor lies in p-substrate
         # ToDo: Generalize for other resistors
-        super()._gen_placement_rules()
+        super()._gen_placement_spacing_rules()
 
     def _generate_routing_rules(self) -> list[RoutingRule]:
         # needs no routing rules
@@ -731,38 +733,26 @@ class Capacitor(PrimitiveDevice):
         self._terminals["D"] = Pin("D", self)
         self._terminals["S"] = Pin("S", self)
 
-    def _gen_placement_rules(self):
+    def _gen_placement_spacing_rules(self):
         """Generate placement rules for the device."""
         if self.model == "sky130_fd_pr__cap_mim_m3_1":
             # generate a spacing rules for the bottom, mim-cap and top-layer of the capacitor
-            rule1 = placement_rules.Spacing(
-                cell=self.cell, layer=global_pdk.get_layer("m3")
-            )
-            rule2 = placement_rules.Spacing(
-                cell=self.cell, layer=global_pdk.get_layer("mimcap")
-            )
-            rule3 = placement_rules.Spacing(
-                cell=self.cell, layer=global_pdk.get_layer("m4")
-            )
-            self._placement_rules = placement_rules.PlacementRule(
+            rule1 = Spacing(cell=self.cell, layer=global_pdk.get_layer("m3"))
+            rule2 = Spacing(cell=self.cell, layer=global_pdk.get_layer("mimcap"))
+            rule3 = Spacing(cell=self.cell, layer=global_pdk.get_layer("m4"))
+            self._placement_rules = PlacementRule(
                 cell=self.cell, rules=[rule1, rule2, rule3]
             )
         elif self.model == "sky130_fd_pr__cap_mim_m3_2":
             # generate a spacing rules for the bottom, mim-cap and top-layer of the capacitor
-            rule1 = placement_rules.Spacing(
-                cell=self.cell, layer=global_pdk.get_layer("m4")
-            )
-            rule2 = placement_rules.Spacing(
-                cell=self.cell, layer=global_pdk.get_layer("mimcap")
-            )
-            rule3 = placement_rules.Spacing(
-                cell=self.cell, layer=global_pdk.get_layer("m5")
-            )
-            self._placement_rules = placement_rules.PlacementRules(
+            rule1 = Spacing(cell=self.cell, layer=global_pdk.get_layer("m4"))
+            rule2 = Spacing(cell=self.cell, layer=global_pdk.get_layer("mimcap"))
+            rule3 = Spacing(cell=self.cell, layer=global_pdk.get_layer("m5"))
+            self._placement_rules = PlacementRules(
                 cell=self.cell, rules=[rule1, rule2, rule3]
             )
 
-        super()._gen_placement_rules()
+        super()._gen_placement_spacing_rules()
 
     def _generate_routing_rules(self) -> list[RoutingRule]:
         super()._generate_routing_rules()
@@ -849,24 +839,22 @@ class MOS(PrimitiveDevice):
         self._terminals["S"] = Pin("S", self)
         self._terminals["B"] = Pin("B", self)
 
-    def _gen_placement_rules(self):
+    def _gen_placement_spacing_rules(self):
         if "nfet" in self.model:
             # nfet has no spacing rule
             pass
         elif "pfet" in self.model:
             # generate a spacing rule for the nwell
-            rule = placement_rules.Spacing(
+            rule = Spacing(
                 cell=self.cell,
                 layer=global_pdk.get_layer("nwell"),
                 net=self.terminal_nets["B"],
             )
-            self._placement_rules = placement_rules.PlacementRules(
-                cell=self.cell, rules=[rule]
-            )
+            self._placement_rules = PlacementRules(cell=self.cell, rules=[rule])
         else:
             raise ValueError("No valid model for placement-rule given!")
 
-        super()._gen_placement_rules()
+        super()._gen_placement_spacing_rules()
 
     def _generate_routing_rules(self) -> list[RoutingRule]:
         return super()._generate_routing_rules()
@@ -891,19 +879,24 @@ class SubDevice(NTermDevice):
 
         """
         # get the number of terminals from the spice description
-        self._N_Terminals = SubDevice.get_num_terminals(spice_description)
+        self._n_terminals = SubDevice.get_num_terminals(spice_description)
         # set the terminal names
         self._terminal_names = terminal_names
         # make sure, the number of terminal names and terminals of the device coincide
-        assert len(terminal_names) == self._N_Terminals
+        assert len(terminal_names) == self._n_terminals
 
-        super().__init__(spice_description, self._N_Terminals, name_suffix)
+        super().__init__(spice_description, self._n_terminals, name_suffix)
 
         # get the model of the sub device == the name of the sub-circuit
-        self._model = self._spice_splitted[1 + self._N_Terminals]
+        self._model = self._spice_splitted[
+            1 + self._n_terminals
+        ]  # <name> <terms> <model_name>
 
         # holds the internal circuit of the device
         self._circuit = None
+
+        # Override the cell property to hold a macro cell
+        self._cell: MacroCell = None
 
         # add features - a sub-device has no "real" features
         self.add_feature("model", -1)
@@ -925,6 +918,16 @@ class SubDevice(NTermDevice):
         # set the child (inner) nets of the terminals of the sub-device.
         # -> these are known as soon a circuit is build up
         self._set_terminal_child_nets()
+
+    @property
+    def cell(self) -> MacroCell:
+        """Get the cell of the device.
+
+        Returns:
+            Cell: Cell of the device.
+
+        """
+        return self._cell
 
     @property
     def internal_nets(self) -> dict[str, list[Net]]:
@@ -962,7 +965,7 @@ class SubDevice(NTermDevice):
         nets = {}
 
         # get a list of the internal nets, which are connected to the terminals
-        terminal_nets = list(self._circuit.terminal_nets.values())
+        # terminal_nets = list(self._circuit.terminal_nets.values())
 
         # iterate over the terminal names, and the terminal net names
         for internal_net_name, outer_net_name in zip(
@@ -1041,41 +1044,41 @@ class SubDevice(NTermDevice):
             # set the child net of the terminal as the inner net
             term.set_child_net(inner_net)
 
-    def _gen_placement_rules(self):
+    def _gen_placement_spacing_rules(self):
         rules = []
         # generate for each rule of the inner cells a new MacroSpacing-rule
         # iterate over each inner-cell of the devices macro-cell
-        for cell in self.cell.cells:
+        for cell_ in self.cell.cells:
             # if the cell has placement rules
-            if cell.placement_rules:
+            if cell_.placement_rules:
                 # iterate over the rules
-                for rule in cell.placement_rules.rules:
-                    # get the internal net, if there is one
-                    try:
-                        internal_net = rule.net
-                    except Exception:
-                        internal_net = None
+                for rule in cell_.placement_rules.rules:
+                    # Check if spacing rule
+                    if isinstance(rule, Spacing):
+                        # get the internal net, if there is one
+                        try:
+                            internal_net = rule.net
+                        except Exception:
+                            internal_net = None
 
-                    # map the internal net to the terminal net
-                    if internal_net:
-                        terminal_net = self.internal_to_terminal_net(internal_net)
-                    else:
-                        terminal_net = None
+                        # map the internal net to the terminal net
+                        if internal_net:
+                            terminal_net = self.internal_to_terminal_net(internal_net)
+                        else:
+                            terminal_net = None
 
-                    # make a new rule
-                    rules.append(
-                        placement_rules.MacroSpacing(
-                            cell=self.cell, cell_spacing=rule, net=None
+                        # make a new rule
+                        rules.append(
+                            MacroSpacing(
+                                cell=self.cell, cell_spacing=rule, net=terminal_net
+                            )
                         )
-                    )
 
         # generate placement rules from the rules
         if rules:
-            self._placement_rules = placement_rules.PlacementRules(
-                cell=self.cell, rules=rules
-            )
+            self._placement_rules = PlacementRules(cell=self.cell, rules=rules)
 
-        super()._gen_placement_rules()
+        super()._gen_placement_spacing_rules()
 
     @staticmethod
     def get_num_terminals(spice_description: str) -> int:

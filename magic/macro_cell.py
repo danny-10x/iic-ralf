@@ -21,16 +21,15 @@ from __future__ import annotations
 
 import copy
 
-from Magic.MagicLayer import Color, MagicLayer, Rectangle
-from Magic.MagicTerminal import MagicPin, MagicTerminal
-from Magic.MagicTerminal_utils import Net
-
-from Magic.Cell import Cell
-from schematic_capture.Devices import SubDevice
+from magic.cell import Cell
+from magic.magic_layer import Color, MagicLayer, Rectangle
+from magic.magic_terminal import MagicPin, MagicTerminal
+from schematic_capture.devices import Net, SubDevice
 
 
 class MacroCell(Cell):
     """Class to store a MacroCell.
+
     A MacroCell is a cell, which is build up by multiple sub-cells.
     The MacroCell encloses this sub-cells.
     """
@@ -61,6 +60,7 @@ class MacroCell(Cell):
 
     @property
     def cells(self):
+        """Return the cells in the macro cell."""
         return self._cells
 
     def get_cells_bound_layer(self) -> dict[str, MagicLayer]:
@@ -194,6 +194,7 @@ class MacroCell(Cell):
         self._cells_rotation = self.rotation
 
     def draw(self, screen):
+        """Draw macro cell."""
         self._layer_stack["Bounding"].draw(screen)
 
         for c in self._cells:
