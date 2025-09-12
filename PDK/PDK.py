@@ -21,45 +21,49 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from PDK.Layers import Layer, MetalLayer, ViaLayer
+from PDK.layers import Layer, MetalLayer, ViaLayer
+
 
 class PDK:
     """Class to store a PDK.
-        A PDK defines the layers for the routing.
+
+    A PDK defines the layers for the routing.
     """
-    def __init__(self, pdk_file_path : str | Path) -> None:
-        """Setup a PDK.
+
+    def __init__(self, pdk_file_path: str | Path) -> None:
+        """Set up a PDK.
 
         Args:
             pdk_file_path (str | Path): Path to the PDK file. (json file)
+
         """
-        #read in the PDK
+        # read in the PDK
         self._pdk_file_path = pdk_file_path
         with open(self._pdk_file_path) as json_file:
             self._pdk_definition = json.load(json_file)
-        
-        #get the scale factor to the internal lambda-scale
+
+        # get the scale factor to the internal lambda-scale
         # e.g. if the values in the PDK are given in nm
-        # the scale factor has to be 10 
+        # the scale factor has to be 10
         self._scale_factor = self._pdk_definition["ScaleFactor"]
 
-        #get aliases of the layer names
+        # get aliases of the layer names
         self._aliases = self._pdk_definition["aliases"]
 
-        #store the layers
-        #store metal layers
+        # store the layers
+        # store metal layers
         # key: layer name value: Layer
         self._metal_layers = {}
-        #store via layers
+        # store via layers
         # key: layer name value: Layer
         self._via_layers = {}
-        #store device layers
+        # store device layers
         # key: layer name value: Layer
         self._device_layers = {}
-        #store all layers
+        # store all layers
         # key: layer name value: Layer
         self._layers = {}
-        #store the layer numbers
+        # store the layer numbers
         # key: layer name value: layer number
         self._layer_numbers = {}
         self._init_layers()
@@ -67,26 +71,32 @@ class PDK:
     @property
     def scale_factor(self) -> int:
         """Get the scale factor of the lambda unit to 1nm.
-            E.g. if the scale factor is 10, 1 lambda = 10nm. 
+
+            E.g. if the scale factor is 10, 1 lambda = 10nm.
+
         Returns:
             int: Scale factor.
+
         """
         return self._scale_factor
+
     @property
     def metal_layers(self) -> dict[str, Layer]:
         """Get the metal layers.
 
         Returns:
-            dict: key -> layer name (str), value -> layer (Layer) 
+            dict: key -> layer name (str), value -> layer (Layer)
+
         """
         return self._metal_layers
-    
+
     @property
     def via_layers(self) -> dict[str, Layer]:
         """Get the via layers.
 
         Returns:
-            dict: key -> layer name (str), value -> layer (Layer) 
+            dict: key -> layer name (str), value -> layer (Layer)
+
         """
         return self._via_layers
 
@@ -96,59 +106,82 @@ class PDK:
 
         Returns:
             dict: key -> layer name (str), value -> layer (Layer)
+
         """
         return self._device_layers
-    
+
     @property
     def layers(self) -> dict[str, Layer]:
         """Get all layers of the PDK.
 
         Returns:
-            dict: key -> layer name (str), value -> layer (Layer) 
+            dict: key -> layer name (str), value -> layer (Layer)
+
         """
         return self._layers
-    
+
     def _init_layers(self):
-        #init device layers
-        for l in self._pdk_definition["device_layers"]:
-            minWidth = self._pdk_definition[l]["Width"]/self._scale_factor
-            minSpace = self._pdk_definition[l]["Space"]/self._scale_factor 
-            self._device_layers[l] = Layer(l, minWidth, minSpace)
-        
+        # init device layers
+        for layer_ in self._pdk_definition["device_layers"]:
+            min_width = self._pdk_definition[layer_]["Width"] / self._scale_factor
+            min_space = self._pdk_definition[layer_]["Space"] / self._scale_factor
+            self._device_layers[layer_] = Layer(layer_, min_width, min_space)
 
         layer_number = 0
-        #init metal layers
-        for l in self._pdk_definition["layer_stack"]:
-            minWidth = self._pdk_definition[l]["Width"]/self._scale_factor
-            minSpace = self._pdk_definition[l]["Space"]/self._scale_factor
-            resistivity = self._pdk_definition[l]["Resistivity"]/self._scale_factor
-            minArea = self._pdk_definition[l]["MinArea"]/(self._scale_factor**2)
-            
-            self._metal_layers[l] = MetalLayer(name=l, minWidth=minWidth, minSpace=minSpace,
-                                               minArea=minArea, resistivity=resistivity, pdk=self)
-            self._layer_numbers[l] = layer_number
+        # init metal layers
+        for layer_ in self._pdk_definition["layer_stack"]:
+            min_width = self._pdk_definition[layer_]["Width"] / self._scale_factor
+            min_space = self._pdk_definition[layer_]["Space"] / self._scale_factor
+            resistivity = (
+                self._pdk_definition[layer_]["Resistivity"] / self._scale_factor
+            )
+            min_area = self._pdk_definition[layer_]["MinArea"] / (self._scale_factor**2)
+
+            self._metal_layers[layer_] = MetalLayer(
+                name=layer_,
+                min_width=min_width,
+                min_space=min_space,
+                min_area=min_area,
+                resistivity=resistivity,
+                pdk=self,
+            )
+            self._layer_numbers[layer_] = layer_number
             layer_number += 1
 
-        #init via layers
-        for l in self._pdk_definition["via_stack"]:
-            minWidth = self._pdk_definition[l]["Width"]/self._scale_factor
-            minSpace = self._pdk_definition[l]["Space"]/self._scale_factor
-            resistivity = self._pdk_definition[l]["Resistivity"]/self._scale_factor
-            min_enclosure = self._pdk_definition[l]["min_enclosure"]/self._scale_factor
-            bottom_layer = self._metal_layers[self._pdk_definition[l]["Stack"][0]]
-            top_layer = self._metal_layers[self._pdk_definition[l]["Stack"][1]]
-            self._via_layers[l] = ViaLayer(l, minWidth, minSpace, min_enclosure, min_enclosure, bottom_layer, top_layer, resistivity, self)
-            bottom_layer.set_upper_via(self._via_layers[l])
-            top_layer.set_lower_via(self._via_layers[l])
-            self._layer_numbers[l] = layer_number
+        # init via layers
+        for layer_ in self._pdk_definition["via_stack"]:
+            min_width = self._pdk_definition[layer_]["Width"] / self._scale_factor
+            min_space = self._pdk_definition[layer_]["Space"] / self._scale_factor
+            resistivity = (
+                self._pdk_definition[layer_]["Resistivity"] / self._scale_factor
+            )
+            min_enclosure = (
+                self._pdk_definition[layer_]["min_enclosure"] / self._scale_factor
+            )
+            bottom_layer = self._metal_layers[self._pdk_definition[layer_]["Stack"][0]]
+            top_layer = self._metal_layers[self._pdk_definition[layer_]["Stack"][1]]
+            self._via_layers[layer_] = ViaLayer(
+                layer_,
+                min_width,
+                min_space,
+                min_enclosure,
+                min_enclosure,
+                bottom_layer,
+                top_layer,
+                resistivity,
+                self,
+            )
+            bottom_layer.set_upper_via(self._via_layers[layer_])
+            top_layer.set_lower_via(self._via_layers[layer_])
+            self._layer_numbers[layer_] = layer_number
             layer_number += 1
 
-        #add the layers to the layers dict
+        # add the layers to the layers dict
         self._layers.update(self._device_layers)
         self._layers.update(self._metal_layers)
         self._layers.update(self._via_layers)
-    
-    def _get_name_from_alias(self, layer_alias : str) -> str | None:
+
+    def _get_name_from_alias(self, layer_alias: str) -> str | None:
         """Get the layer name (as in the PDK) for the alias <layer_alias>.
 
         Args:
@@ -156,17 +189,18 @@ class PDK:
 
         Returns:
             str | None: PDK name of the layer, or None if the alias isn't in the PDK.
+
         """
         if layer_alias in self.layers:
             return layer_alias
-        
+
         for layer_name, aliases in self._aliases.items():
-            if layer_alias in aliases or layer_alias==layer_name:
+            if layer_alias in aliases or layer_alias == layer_name:
                 return layer_name
-        
+
         return None
 
-    def get_layer(self, layer : str) -> Layer:
+    def get_layer(self, layer: str) -> Layer:
         """Get the layer, with name <layer>.
 
         Args:
@@ -177,15 +211,17 @@ class PDK:
 
         Returns:
             Layer: Layer with name <layer>.
-        """         
+
+        """
         layer = self._get_name_from_alias(layer)
         try:
             return self._layers[layer]
-        except:
-            raise ValueError(f"Layer {layer} not in PDK!")
-    
-    def get_layer_number(self, layer : str) -> int:
+        except Exception as e:
+            raise ValueError(f"Layer {layer} not in PDK!") from e
+
+    def get_layer_number(self, layer: str) -> int:
         """Get the number of the layer, with name <layer>.
+
             - The layer-number of two neighboring metal-layers differ by 1
             - The layer-number of two neighboring via-layers differ by 1
         Args:
@@ -196,14 +232,15 @@ class PDK:
 
         Returns:
             int: Layer number.
+
         """
         layer = self._get_name_from_alias(layer)
         try:
             return self._layer_numbers[layer]
-        except:
-            raise ValueError(f"Layer {layer} has no number!")
-    
-    def get_lower_metal_layer(self, layer : str) -> MetalLayer:
+        except Exception as e:
+            raise ValueError(f"Layer {layer} has no number!") from e
+
+    def get_lower_metal_layer(self, layer: str) -> MetalLayer:
         """Get the metal layer one below metal-layer <layer>.
 
         Args:
@@ -213,21 +250,22 @@ class PDK:
             ValueError: If layer not in metal-stack.
 
         Returns:
-            MetalLayer: MetalLayer one below <layer>. 
+            MetalLayer: MetalLayer one below <layer>.
+
         """
         layer = self._get_name_from_alias(layer)
         metal_stack = self._pdk_definition["layer_stack"]
         try:
             index = metal_stack.index(layer)
-        except:
-            raise ValueError(f"Layer {layer} not defined in metal stack!")
-        
-        if index>0:
-            return self._metal_layers[metal_stack[index-1]]
+        except Exception as e:
+            raise ValueError(f"Layer {layer} not defined in metal stack!") from e
+
+        if index > 0:
+            return self._metal_layers[metal_stack[index - 1]]
         else:
             return None
-    
-    def get_higher_metal_layer(self, layer : str) -> MetalLayer:
+
+    def get_higher_metal_layer(self, layer: str) -> MetalLayer:
         """Get the metal layer one above metal-layer <layer>.
 
         Args:
@@ -237,20 +275,21 @@ class PDK:
             ValueError: If layer not in metal-stack.
 
         Returns:
-            MetalLayer: MetalLayer one above <layer>. 
+            MetalLayer: MetalLayer one above <layer>.
+
         """
         layer = self._get_name_from_alias(layer)
         metal_stack = self._pdk_definition["layer_stack"]
         try:
             index = metal_stack.index(layer)
-        except:
-            raise ValueError(f"Layer {layer} not defined in metal stack!")
-        
-        if index<(len(metal_stack)-1):
-            return self._metal_layers[metal_stack[index+1]]
+        except Exception as e:
+            raise ValueError(f"Layer {layer} not defined in metal stack!") from e
+
+        if index < (len(metal_stack) - 1):
+            return self._metal_layers[metal_stack[index + 1]]
         else:
             return None
-    
+
     def get_via_layer(self, layer1, layer2) -> ViaLayer | None:
         """Get the via between layer1 and layer2.
 
@@ -260,12 +299,16 @@ class PDK:
 
         Returns:
             ViaLayer or None: ViaLayer between layer1 and layer2
+
         """
-        for (k, v) in self._via_layers.items():
-            if (v.bottom_layer == layer1 and v.top_layer == layer2) or (v.bottom_layer == layer2 and v.top_layer == layer1):
-                return v
-        
+        for _, via_ in self._via_layers.items():
+            if (via_.bottom_layer == layer1 and via_.top_layer == layer2) or (
+                via_.bottom_layer == layer2 and via_.top_layer == layer1
+            ):
+                return via_
+
         return None
 
-#setup a global pdk    
-global_pdk = PDK('PDK/layers.json')
+
+# setup a global pdk
+global_pdk = PDK("PDK/layers.json")

@@ -26,20 +26,26 @@
 # SOFTWARE.
 
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
-    from Environment.Environment import Placement
+    from environment.environment import Placement
 
-import matplotlib.pyplot as plt
-import torch
 import sys
-import numpy as np
 
-from PPO.Placement_PPO import Placement_PPO
-from Network.D2RL_Actor import D2RL_Actor
+import torch
+
+from PPO.placement_ppo import PlacementPPO
 
 
-def train(env : Placement, hyperparameters : dict, actor_model : str = '', critic_model : str = '', total_placements=200e6):
+def train(
+    env: Placement,
+    hyperparameters: dict,
+    actor_model: str = "",
+    critic_model: str = "",
+    total_placements=200e6,
+):
     """Train a policy network to learn placing cells.
 
     Args:
@@ -48,21 +54,26 @@ def train(env : Placement, hyperparameters : dict, actor_model : str = '', criti
         actor_model (str, optional): Weights-file of the actor-model. Defaults to ''.
         critic_model (str, optional): Weights-file of the critic-model. Defaults to '':
         total_placements (int, optional): Number of total-placements which shall be performed. Defaults to 200e6.
+
     """
-    print(f"Training", flush=True)
-    #setup a model to train the policy
-    model = Placement_PPO(env, hyperparameters)
-        
-    if actor_model != '' and critic_model != '':
+    print("Training", flush=True)
+    # setup a model to train the policy
+    model = PlacementPPO(env, hyperparameters)
+
+    if actor_model != "" and critic_model != "":
         print(f"Loading in {actor_model} and {critic_model}...", flush=True)
         model.actor.load_state_dict(torch.load(actor_model))
         model.critic.load_state_dict(torch.load(critic_model))
-        print(f"Successfully loaded.", flush=True)
-    elif actor_model != '' or critic_model != '': # Don't train from scratch if user accidentally forgets actor/critic model
-        print(f"Error: Either specify both actor/critic models or none at all. We don't want to accidentally override anything!")
+        print("Successfully loaded.", flush=True)
+    elif (
+        actor_model != "" or critic_model != ""
+    ):  # Don't train from scratch if user accidentally forgets actor/critic model
+        print(
+            "Error: Either specify both actor/critic models or none at all. We don't want to accidentally override anything!"
+        )
         sys.exit(0)
     else:
-        print(f"Training from scratch.", flush=True)
+        print("Training from scratch.", flush=True)
 
-    #learn to place
+    # learn to place
     model.learn(total_placements=total_placements)

@@ -191,17 +191,15 @@ class Spacing(PlacementRule):
 
         """
         if net:
-            name = f"{self.__class__.__name__}({layer.name}, {net.name}, {round(layer.minSpace, 2)!s})"
+            name = f"{self.__class__.__name__}({layer.name}, {net.name}, {round(layer.min_space, 2)!s})"
         else:
-            name = (
-                f"{self.__class__.__name__}({layer.name}, {round(layer.minSpace, 2)!s})"
-            )
+            name = f"{self.__class__.__name__}({layer.name}, {round(layer.min_space, 2)!s})"
 
         super().__init__(cell=cell, name=name)
 
         self._layer = layer
         self._net = net
-        self._min_spacing = layer.minSpace
+        self._min_spacing = layer.min_space
 
     @property
     def layer(self) -> Layer:

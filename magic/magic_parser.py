@@ -48,8 +48,8 @@ class MagicParser:
         try:
             with open(str(self._src)) as f:
                 lines = f.readlines()
-        except Exception:
-            raise ValueError
+        except Exception as e:
+            raise ValueError from e
 
         # set the scaling as 1
         self._magscale = 1

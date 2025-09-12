@@ -57,7 +57,7 @@ class Rudy:
 
         """
         w_sum = sum(
-            layer_.minWidth + layer_.minSpace
+            layer_.min_width + layer_.min_space
             for layer_ in self._pdk.metal_layers.values()
         )
         n_layers = len(self._pdk.metal_layers)
