@@ -19,22 +19,22 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-"""
-Program to plot cell using DEF and LEF data.
+"""Program to plot cell using DEF and LEF data.
 
 Author: Tri Minh Cao
 Email: tricao@utdallas.edu
 Date: September 2016
 """
-from def_parser import *
-from lef_parser import *
-import util
-import matplotlib.pyplot as plt
+
 import time
 
+import matplotlib.pyplot as plt
+from def_parser import *
+from lef_parser import *
+
+
 def inside_area(location, corners):
-    """
-    Check if the location is inside an area.
+    """Check if the location is inside an area.
     :param location: location
     :param corners: corner points of the rectangle area.
     :return:
@@ -43,13 +43,13 @@ def inside_area(location, corners):
     x2 = corners[1][0]
     y1 = corners[0][1]
     y2 = corners[1][1]
-    return (location[0] > x1 and location[0] < x2
-            and location[1] > y1 and location[1] < y2)
+    return (
+        location[0] > x1 and location[0] < x2 and location[1] > y1 and location[1] < y2
+    )
 
 
 def macro_and_via1(def_info, via_type):
-    """
-    Method to get macros/cells info and via1 information.
+    """Method to get macros/cells info and via1 information.
     :param def_info: information from a DEF file
     :param via_type: the name of the via type, such as "via1" or "M2_M1_via"
     :return: a macro dictionary that contains via info
@@ -64,7 +64,7 @@ def macro_and_via1(def_info, via_type):
         for route in net.routed:
             if route.end_via != None:
                 # check for the via type of the end_via
-                if route.end_via[:len(via_type)] == via_type:
+                if route.end_via[: len(via_type)] == via_type:
                     via_loc = route.end_via_loc
                     via_name = route.end_via
                     via_info = (via_loc, via_name)
@@ -77,24 +77,24 @@ def macro_and_via1(def_info, via_type):
                                 result_dict[comp_name][pin_name].append(via_info)
                             else:
                                 result_dict[comp_name][pin_name] = [via_info]
-    #print (result_dict)
+    # print (result_dict)
     return result_dict
 
-def draw_via(location, via_info, color='blue'):
-    """
-    Method to draw a via using the location and VIA info from the LEF file.
+
+def draw_via(location, via_info, color="blue"):
+    """Method to draw a via using the location and VIA info from the LEF file.
     :param location: via location
     :param via_info: VIA data from LEF file.
     :return: void
     """
     for each_layer in via_info.layers:
         # print (each_layer.name)
-        if each_layer.name == 'metal2':
-            color = 'red'
-        elif each_layer.name == 'metal1':
-            color = 'blue'
+        if each_layer.name == "metal2":
+            color = "red"
+        elif each_layer.name == "metal1":
+            color = "blue"
         for shape in each_layer.shapes:
-            scaled_pts = scalePts(shape.points, SCALE)
+            scaled_pts = scale_pts(shape.points, SCALE)
             for i in range(len(scaled_pts)):
                 scaled_pts[i][0] += location[0]
                 scaled_pts[i][1] += location[1]
@@ -102,13 +102,12 @@ def draw_via(location, via_info, color='blue'):
             if shape.type == "RECT":
                 scaled_pts = rect_to_polygon(scaled_pts)
             # print (scaled_pts)
-            draw_shape = plt.Polygon(scaled_pts, closed=True, fill=True,
-                                     color=color)
+            draw_shape = plt.Polygon(scaled_pts, closed=True, fill=True, color=color)
             plt.gca().add_patch(draw_shape)
 
+
 def plot_component(comp_name, lef_data, def_data, macro_via1_dict):
-    """
-    Use pyplot to plot a component from the DEF data
+    """Use pyplot to plot a component from the DEF data
     :param comp_name: name of the component
     :param lef_data: data parsed from LEF file.
     :param def_data: data parsed from DEF file.
@@ -123,8 +122,7 @@ def plot_component(comp_name, lef_data, def_data, macro_via1_dict):
     scale = float(def_data.scale)
     # get the placement of the component
     bottom_left_pt = comp_info.placed
-    top_right_pt = [int(macro_size[0] * scale),
-                    int(macro_size[1] * scale)]
+    top_right_pt = [int(macro_size[0] * scale), int(macro_size[1] * scale)]
     corners = [[0, 0], top_right_pt]
     # find the vias inside the component's area
     vias_in_comp = macro_via1_dict[comp_name]
@@ -157,21 +155,21 @@ def plot_component(comp_name, lef_data, def_data, macro_via1_dict):
     test_axis = [corners[0][0], corners[1][0], corners[0][1], corners[1][1]]
     # print (test_axis)
     plt.axis(test_axis)
-    plt.axis('off')
-    plt.gca().set_aspect('equal', adjustable='box')
+    plt.axis("off")
+    plt.gca().set_aspect("equal", adjustable="box")
     # plt.savefig('foo.png', bbox_inches='tight')
     # compose the output file name
-    out_folder = './images/'
-    current_time = time.strftime('%H%M%d%m%Y')
-    out_file = comp_name + '_' + macro_name + '_' + current_time
+    out_folder = "./images/"
+    current_time = time.strftime("%H%M%d%m%Y")
+    out_file = comp_name + "_" + macro_name + "_" + current_time
     # plt.savefig(out_folder + out_file, transparent=True)
     plt.savefig(out_folder + out_file, transparent=False)
     # plt.show()
-    plt.close('all')
+    plt.close("all")
+
 
 def plot_component2(comp_name, lef_data, def_data, macro_via1_dict):
-    """
-    Use pyplot to plot a component from the DEF data
+    """Use pyplot to plot a component from the DEF data
     :param comp_name: name of the component
     :param lef_data: data parsed from LEF file.
     :param def_data: data parsed from DEF file.
@@ -186,8 +184,10 @@ def plot_component2(comp_name, lef_data, def_data, macro_via1_dict):
     scale = float(def_data.scale)
     # get the placement of the component
     bottom_left_pt = comp_info.placed
-    top_right_pt = [bottom_left_pt[0] + int(macro_size[0] * scale),
-                    bottom_left_pt[1] + int(macro_size[1] * scale)]
+    top_right_pt = [
+        bottom_left_pt[0] + int(macro_size[0] * scale),
+        bottom_left_pt[1] + int(macro_size[1] * scale),
+    ]
     corners = [bottom_left_pt, top_right_pt]
     # find the vias inside the component's area
     vias_in_comp = macro_via1_dict[comp_name]
@@ -231,22 +231,23 @@ def plot_component2(comp_name, lef_data, def_data, macro_via1_dict):
     axis = [corners[0][0], corners[1][0], corners[0][1], corners[1][1]]
     # print (test_axis)
     plt.axis(axis)
-    plt.axis('off')
-    plt.gca().set_aspect('equal', adjustable='box')
+    plt.axis("off")
+    plt.gca().set_aspect("equal", adjustable="box")
     # plt.savefig('foo.png', bbox_inches='tight')
     # compose the output file name
-    out_folder = './images/'
-    current_time = time.strftime('%H%M%S%d%m%Y')
-    out_file = comp_name + '_' + macro_name + '_' + current_time
+    out_folder = "./images/"
+    current_time = time.strftime("%H%M%S%d%m%Y")
+    out_file = comp_name + "_" + macro_name + "_" + current_time
     # plt.savefig(out_folder + out_file, transparent=True)
     plt.savefig(out_folder + out_file, transparent=False)
     # plt.show()
-    plt.close('all')
+    plt.close("all")
+
 
 # Main Class
-if __name__ == '__main__':
+if __name__ == "__main__":
     # read_path = './libraries/DEF/c1908_tri_no_metal1.def'
-    read_path = './libraries/layout_freepdk45/c3540.def'
+    read_path = "./libraries/layout_freepdk45/c3540.def"
     def_parser = DefParser(read_path)
     def_parser.parse()
 
@@ -254,7 +255,7 @@ if __name__ == '__main__':
     lef_parser = LefParser(lef_file)
     lef_parser.parse()
 
-    print ("Process file:", read_path)
+    print("Process file:", read_path)
     # test macro and via (note: only via1)
     macro_via1_dict = macro_and_via1(def_parser, via_type="M2_M1_via")
     # for comp in macro_via1_dict:
@@ -267,11 +268,10 @@ if __name__ == '__main__':
     for each_comp in macro_via1_dict:
         comp_info = def_parser.components.comp_dict[each_comp]
         # if (comp_info.macro == "INVX8"):
-        print (each_comp)
+        print(each_comp)
         plot_component2(each_comp, lef_parser, def_parser, macro_via1_dict)
         num_comps += 1
         # if num_comps > 20:
         #     break
-    print ("Finished!")
+    print("Finished!")
     # plot_component("U4068", lef_parser, def_parser, macro_via1_dict)
-

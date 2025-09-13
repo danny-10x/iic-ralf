@@ -19,18 +19,20 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-"""
-Data structures for DEF Parser
+"""Data structures for DEF Parser.
+
 Author: Tri Minh Cao
 Email: tricao@utdallas.edu
 Date: August 2016
 """
-from lef_def_parser.util import *
+
+from lef_def_parser.util import split_parentheses
+
 
 class Pins:
-    """
-    Class Pins represents the PINS section in DEF file. It contains
-    individual Pin objects.
+    """Class to represent the PINS section in DEF file.
+
+    It contains individual Pin objects.
     """
 
     def __init__(self, num_pins):
@@ -92,9 +94,7 @@ class Pins:
 
 
 class Pin:
-    """
-    Class Pin represents an individual pin defined in the DEF file.
-    """
+    """Class to represent an individual pin defined in the DEF file."""
 
     def __init__(self, name):
         self.type = "PIN_DEF"
@@ -120,7 +120,7 @@ class Pin:
         return s
 
     def to_def_format(self):
-        #- N1 + NET N1 + DIRECTION INPUT + USE SIGNAL
+        # - N1 + NET N1 + DIRECTION INPUT + USE SIGNAL
         #  + LAYER metal2 ( -70 0 ) ( 70 140 )
         #  + PLACED ( 27930 0 ) N ;
         s = ""
@@ -139,9 +139,7 @@ class Pin:
 
 
 class Layer:
-    """
-    Class Layer represents a layer defined inside a PIN object
-    """
+    """Class to represent a layer defined inside a PIN object."""
 
     def __init__(self, name):
         self.type = "LAYER_DEF"
@@ -164,9 +162,7 @@ class Layer:
 
 
 class Components:
-    """
-    Class Components represents the COMPONENTS section in the DEF file.
-    """
+    """Class Components represents the COMPONENTS section in the DEF file."""
 
     def __init__(self, num_comps):
         self.type = "COMPONENTS_DEF"
@@ -212,10 +208,7 @@ class Components:
 
 
 class Component:
-    """
-    Represents individual component inside the COMPONENTS section in the DEF
-    file.
-    """
+    """Represents individual component inside the COMPONENTS section in the DEF file."""
 
     def __init__(self, name):
         self.type = "COMPONENT_DEF"
@@ -243,9 +236,7 @@ class Component:
 
 
 class Nets:
-    """
-    Represents the section NETS in the DEF file.
-    """
+    """Represents the section NETS in the DEF file."""
 
     def __init__(self, num_nets):
         self.type = "NETS_DEF"
@@ -317,9 +308,7 @@ class Nets:
 
 
 class Net:
-    """
-    Represents individual Net inside NETS section.
-    """
+    """Represents individual Net inside NETS section."""
 
     def __init__(self, name):
         self.type = "NET_DEF"
@@ -355,10 +344,9 @@ class Net:
         s += " ;"
         return s
 
+
 class Routed:
-    """
-    Represents a ROUTED definition inside a NET.
-    """
+    """Represents a ROUTED definition inside a NET."""
 
     def __init__(self):
         self.type = "ROUTED_DEF"
@@ -396,9 +384,8 @@ class Routed:
 
 
 class Tracks:
-    """
-    Represents a TRACKS definition inside the DEF file.
-    """
+    """Represents a TRACKS definition inside the DEF file."""
+
     def __init__(self, name):
         self.type = "TRACKS_DEF"
         self.name = name
@@ -419,9 +406,8 @@ class Tracks:
 
 
 class GCellGrid:
-    """
-    Represents a GCELLGRID definition in the DEF file.
-    """
+    """Represents a GCELLGRID definition in the DEF file."""
+
     def __init__(self, name):
         self.type = "GCELLGRID_DEF"
         self.name = name
@@ -436,10 +422,10 @@ class GCellGrid:
         s += " ;"
         return s
 
+
 class Row:
-    """
-    Represents a ROW definition in the DEF file.
-    """
+    """Represents a ROW definition in the DEF file."""
+
     def __init__(self, name):
         self.type = "ROW_DEF"
         self.name = name
@@ -459,10 +445,10 @@ class Row:
         s += " ;"
         return s
 
+
 class Property:
-    """
-    Represents a PROPERTYDEFINITIONS in the DEF file.
-    """
+    """Represents a PROPERTYDEFINITIONS in the DEF file."""
+
     def __init__(self):
         self.type = "PROPERTY_DEF"
         self.texts = []

@@ -19,26 +19,25 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-"""
-Data Structures for LEF Parser
+"""Data Structures for LEF Parser.
+
 Author: Tri Minh Cao
 Email: tricao@utdallas.edu
 Date: August 2016
 """
-from util import *
+
+from util import compare_metal
+
 
 class Statement:
-    """
-    General class for all types of Statements in the LEF file
-    """
+    """General class for all types of Statements in the LEF file."""
 
     def __init__(self):
         pass
 
     def parse_next(self, data):
-        """
-        Method to add information from a statement from LEF file to the
-        Statement object.
+        """Add information from a statement from LEF file to the Statement object.
+
         :param data: a list of strings that contains pieces of information
         :return: 1 if parsing is done, -1 if error, otherwise, return the
         object that will be parsed next.
@@ -48,7 +47,7 @@ class Statement:
             name = data[1]
             new_state = Macro(name)
             return new_state
-        elif data[0] == "LAYER" and len(data) == 2: # does not have ;
+        elif data[0] == "LAYER" and len(data) == 2:  # does not have ;
             name = data[1]
             new_state = Layer(name)
             return new_state
@@ -61,8 +60,8 @@ class Statement:
         return 0
 
     def __str__(self):
-        """
-        turn a statement object into string
+        """Turn a statement object into string.
+
         :return: string representation of Statement objects
         """
         s = ""
@@ -71,14 +70,12 @@ class Statement:
 
 
 class Macro(Statement):
-    """
-    Macro class represents a MACRO (cell) in the LEF file.
-    """
+    """Macro class represents a MACRO (cell) in the LEF file."""
 
     def __init__(self, name):
         # initiate the Statement superclass
         Statement.__init__(self)
-        self.type = 'MACRO'
+        self.type = "MACRO"
         self.name = name
         # other info is stored in this dictionary
         self.info = {}
@@ -86,8 +83,8 @@ class Macro(Statement):
         self.pin_dict = {}
 
     def __str__(self):
-        """
-        turn a statement object into string
+        """Turn a statement object into string.
+
         :return: string representation of Statement objects
         """
         s = ""
@@ -102,10 +99,9 @@ class Macro(Statement):
         return s
 
     def parse_next(self, data):
-        """
-        Method to add information from a statement from LEF file to a Macro
-        object.
-        :param data: a list of strings that contains pieces of information
+        """Add information from a statement from LEF file to a Macro object.
+
+        :param data: a list of strings that contains pieces of inf ormation
         :return: 0 if in progress, 1 if parsing is done, -1 if error,
         otherwise, return the object that will be parsed next.
         """
@@ -149,9 +145,7 @@ class Macro(Statement):
 
 
 class Pin(Statement):
-    """
-    Class Pin represents a PIN statement in the LEF file.
-    """
+    """Class Pin represents a PIN statement in the LEF file."""
 
     def __init__(self, name):
         Statement.__init__(self)
@@ -192,9 +186,7 @@ class Pin(Statement):
 
 
 class Port(Statement):
-    """
-    Class Port represents an PORT statement in the LEF file.
-    """
+    """Class Port represents an PORT statement in the LEF file."""
 
     # Note: PORT statement does not have name
     def __init__(self):
@@ -208,7 +200,7 @@ class Port(Statement):
             return 1
         elif data[0] == "LAYER":
             name = data[1]
-            new_layerdef = LayerDef(data[1])
+            new_layerdef = LayerDef(name)
             if "LAYER" in self.info:
                 self.info["LAYER"].append(new_layerdef)
             else:
@@ -236,12 +228,8 @@ class Port(Statement):
         return highest
 
 
-
-
 class Obs(Statement):
-    """
-    Class Obs represents an OBS statement in the LEF file.
-    """
+    """Class Obs represents an OBS statement in the LEF file."""
 
     # Note: OBS statement does not have name
     def __init__(self):
@@ -261,24 +249,21 @@ class Obs(Statement):
             return 1
         elif data[0] == "LAYER":
             name = data[1]
-            new_layerdef = LayerDef(data[1])
+            new_layerdef = LayerDef(name)
             if "LAYER" in self.info:
                 self.info["LAYER"].append(new_layerdef)
             else:
                 self.info["LAYER"] = [new_layerdef]
         elif data[0] == "RECT":
             # error if the self.info["LAYER"] does not exist
-            self.info["LAYER"][-1].add_rect(data) # [-1] means the latest layer
+            self.info["LAYER"][-1].add_rect(data)  # [-1] means the latest layer
         elif data[0] == "POLYGON":
             self.info["LAYER"][-1].add_polygon(data)
         return 0
 
 
 class LayerDef:
-    """
-    Class LayerDef represents the Layer definition inside a PORT or OBS
-    statement.
-    """
+    """Class LayerDef represents the Layer definition inside a PORT or OBS statement."""
 
     # NOTE: LayerDef has no END statement
     # I think I still need a LayerDef class, but it will not be a subclass of
@@ -302,16 +287,14 @@ class LayerDef:
         # add each pair of (x, y) points to a list
         for idx in range(1, len(data) - 2, 2):
             x_cor = float(data[idx])
-            y_cor = float(data[idx+1])
+            y_cor = float(data[idx + 1])
             points.append([x_cor, y_cor])
         polygon = Polygon(points)
         self.shapes.append(polygon)
 
 
 class Rect:
-    """
-    Class Rect represents a Rect definition in a LayerDef
-    """
+    """Class Rect represents a Rect definition in a LayerDef."""
 
     # Question: Do I really need a Rect class?
     def __init__(self, points):
@@ -320,18 +303,16 @@ class Rect:
 
 
 class Polygon:
-    """
-    Class Polygon represents a Polygon definition in a LayerDef
-    """
+    """Class Polygon represents a Polygon definition in a LayerDef."""
+
     def __init__(self, points):
         self.type = "POLYGON"
         self.points = points
 
 
 class Layer(Statement):
-    """
-    Layer class represents a LAYER section in LEF file.
-    """
+    """Layer class represents a LAYER section in LEF file."""
+
     def __init__(self, name):
         # initiate the Statement superclass
         Statement.__init__(self)
@@ -352,9 +333,8 @@ class Layer(Statement):
         self.property = None
 
     def parse_next(self, data):
-        """
-        Method to add information from a statement from LEF file to a Layer
-        object.
+        """Add information from a statement from LEF file to a Layer object.
+
         :param data: a list of strings that contains pieces of information
         :return: 0 if in progress, 1 if parsing is done, -1 if error,
         otherwise, return the object that will be parsed next.
@@ -395,10 +375,10 @@ class Layer(Statement):
                 return -1
         return 0
 
+
 class Via(Statement):
-    """
-    Via class represents a VIA section in LEF file.
-    """
+    """Via class represents a VIA section in LEF file."""
+
     def __init__(self, name):
         # initiate the Statement superclass
         Statement.__init__(self)
@@ -411,11 +391,10 @@ class Via(Statement):
             return 1
         elif data[0] == "LAYER":
             name = data[1]
-            new_layerdef = LayerDef(data[1])
+            new_layerdef = LayerDef(name)
             self.layers.append(new_layerdef)
         elif data[0] == "RECT":
-            self.layers[-1].add_rect(data) # [-1] means the latest layer
+            self.layers[-1].add_rect(data)  # [-1] means the latest layer
         elif data[0] == "POLYGON":
             self.layers.add_polygon(data)
         return 0
-

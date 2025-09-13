@@ -19,51 +19,55 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-"""
-Useful functions for DEF/LEF parsers.
+"""Useful functions for DEF/LEF parsers.
+
 Author: Tri Minh Cao
 Email: tricao@utdallas.edu
 Date: August 2016
 """
 
-SCALE = 2000
-import matplotlib.pyplot as plt
-import numpy as np
 import math
 
+import matplotlib.pyplot as plt
+import numpy as np
 
-def nCr(n,r):
+SCALE = 2000
+
+
+def nCr(n, r):
     f = math.factorial
-    return f(n) / f(r) / f(n-r)
+    return f(n) / f(r) / f(n - r)
 
 
 def str_to_list(s):
-    """
-    Function to turn a string separated by space into list of words
+    """Turn a string separated by space into list of words.
+
     :param s: input string
     :return: a list of words
     """
     result = s.split()
     # check if the last word is ';' and remove it
-    #if len(result) >= 1:
+    # if len(result) >= 1:
     #    if result[len(result) - 1] == ";":
     #        result.pop()
     return result
 
-def scalePts(pts, alpha):
-    """
-    scale a list of points
+
+def scale_pts(pts, alpha):
+    """Scale a list of points.
+
     :return:
     """
     scaled = []
     for pt in pts:
-        scaled_pt = [alpha*pt[0], alpha*pt[1]]
+        scaled_pt = [alpha * pt[0], alpha * pt[1]]
         scaled.append(scaled_pt)
     return scaled
 
+
 def rect_to_polygon(rect_pts):
-    """
-    Convert the rect point list into polygon point list (for easy plotting)
+    """Convert the rect point list into polygon point list (for easy plotting).
+
     :param pts:
     :return:
     """
@@ -80,8 +84,8 @@ def rect_to_polygon(rect_pts):
 
 
 def split_parentheses(info):
-    """
-    make all strings inside parentheses a list
+    """Make all strings inside parentheses a list.
+
     :param s: a list of strings (called info)
     :return: info list without parentheses
     """
@@ -107,17 +111,18 @@ def split_parentheses(info):
 
 
 def split_plus(line):
-    """
-    Split a line according to the + (plus) sign.
+    """Split a line according to the + (plus) sign.
+
     :param line:
     :return:
     """
     new_line = line.split("+")
     return new_line
 
+
 def split_space(line):
-    """
-    Split a line according to space.
+    """Split a line according to space.
+
     :param line:
     :return:
     """
@@ -126,41 +131,39 @@ def split_space(line):
 
 
 def draw_obs(obs, color):
-    """
-    Helper method to draw a OBS object
+    """Draw a OBS object.
+
     :return: void
     """
     # process each Layer
     for layer in obs.info["LAYER"]:
         for shape in layer.shapes:
-            scaled_pts = scalePts(shape.points, SCALE)
-            if (shape.type == "RECT"):
+            scaled_pts = scale_pts(shape.points, SCALE)
+            if shape.type == "RECT":
                 scaled_pts = rect_to_polygon(scaled_pts)
-            draw_shape = plt.Polygon(scaled_pts, closed=True, fill=True,
-                                     color=color)
+            draw_shape = plt.Polygon(scaled_pts, closed=True, fill=True, color=color)
             plt.gca().add_patch(draw_shape)
 
 
 def draw_port(port, color):
-    """
-    Helper method to draw a PORT object
+    """Draw a PORT object.
+
     :return: void
     """
     # process each Layer
     for layer in port.info["LAYER"]:
         for shape in layer.shapes:
-            scaled_pts = scalePts(shape.points, SCALE)
-            if (shape.type == "RECT"):
+            scaled_pts = scale_pts(shape.points, SCALE)
+            if shape.type == "RECT":
                 scaled_pts = rect_to_polygon(scaled_pts)
-            #print (scaled_pts)
-            draw_shape = plt.Polygon(scaled_pts, closed=True, fill=True,
-                                     color=color)
+            # print (scaled_pts)
+            draw_shape = plt.Polygon(scaled_pts, closed=True, fill=True, color=color)
             plt.gca().add_patch(draw_shape)
 
 
 def draw_pin(pin):
-    """
-    function to draw a PIN object
+    """Draw a PIN object.
+
     :param pin: a pin object
     :return: void
     """
@@ -174,9 +177,10 @@ def draw_pin(pin):
         color = "red"
     draw_port(pin.info["PORT"], color)
 
+
 def draw_macro(macro):
-    """
-    function to draw a Macro (cell) object
+    """Draw a Macro (cell) object.
+
     :param macro: a Macro object
     :return: void
     """
@@ -187,9 +191,10 @@ def draw_macro(macro):
     for pin in macro.info["PIN"]:
         draw_pin(pin)
 
+
 def compare_metal(metal_a, metal_b):
-    """
-    Compare metal layers
+    """Compare metal layers.
+
     :param metal_a: the first metal layer description
     :param metal_b: the second metal layer description
     :return:
@@ -205,12 +210,12 @@ def compare_metal(metal_a, metal_b):
         else:
             metal_a_num = get_metal_num(metal_a)
             metal_b_num = get_metal_num(metal_b)
-            return (metal_a_num - metal_b_num)
+            return metal_a_num - metal_b_num
 
 
 def get_metal_num(metal):
-    """
-    Get mental layer number from a string, such as "metal1" or "metal10"
+    """Get mental layer number from a string, such as "metal1" or "metal10".
+
     :param metal: string that describes the metal layer
     :return: metal number
     """
@@ -222,8 +227,8 @@ def get_metal_num(metal):
 
 
 def inside_area(location, corners):
-    """
-    Check if the location is inside an area.
+    """Check if the location is inside an area.
+
     :param location: location
     :param corners: corner points of the rectangle area.
     :return:
@@ -232,13 +237,14 @@ def inside_area(location, corners):
     x2 = corners[1][0]
     y1 = corners[0][1]
     y2 = corners[1][1]
-    return (location[0] > x1 and location[0] < x2
-            and location[1] > y1 and location[1] < y2)
+    return (
+        location[0] > x1 and location[0] < x2 and location[1] > y1 and location[1] < y2
+    )
 
 
 def relocate_area(left_pt, corners):
-    """
-    Relocate the corners based on the new bottom left point
+    """Relocate the corners based on the new bottom left point.
+
     :param left_pt:
     :param corners:
     :return:
@@ -253,8 +259,8 @@ def relocate_area(left_pt, corners):
 
 
 def macro_and_via1(def_info, via_type):
-    """
-    Method to get macros/cells info and via1 information.
+    """Get macros/cells info and via1 information.
+
     :param def_info: information from a DEF file
     :param via_type: the name of the via type, such as "via1" or "M2_M1_via"
     :return: a macro dictionary that contains via info
@@ -267,9 +273,9 @@ def macro_and_via1(def_info, via_type):
     # process the nets
     for net in def_info.nets.nets:
         for route in net.routed:
-            if route.end_via != None:
+            if route.end_via is not None:
                 # check for the via type of the end_via
-                if route.end_via[:len(via_type)] == via_type:
+                if route.end_via[: len(via_type)] == via_type:
                     via_loc = route.end_via_loc
                     via_name = route.end_via
                     via_info = (via_loc, via_name)
@@ -282,13 +288,13 @@ def macro_and_via1(def_info, via_type):
                                 result_dict[comp_name][pin_name].append(via_info)
                             else:
                                 result_dict[comp_name][pin_name] = [via_info]
-    #print (result_dict)
+    # print (result_dict)
     return result_dict
 
 
 def predict_score(predicts, actuals):
-    """
-    Find the number of correct cell predictions.
+    """Find the number of correct cell predictions.
+
     :param predicts: a list of predictions.
     :param actuals: a list of actual cells.
     :return: # correct predictions, # cells
@@ -318,8 +324,8 @@ def predict_score(predicts, actuals):
 
 
 def get_all_vias(def_info, via_type):
-    """
-    method to get all vias of the via_type and put them in a list
+    """Get all vias of the via_type and put them in a list.
+
     :param def_info: DEF data
     :param via_type: via type
     :return: a list of all vias
@@ -328,21 +334,22 @@ def get_all_vias(def_info, via_type):
     # process the nets
     for net in def_info.nets.nets:
         for route in net.routed:
-            if route.end_via != None:
+            if route.end_via is not None:
                 # check for the via type of the end_via
-                if route.end_via[:len(via_type)] == via_type:
+                if route.end_via[: len(via_type)] == via_type:
                     via_loc = route.end_via_loc
                     via_name = route.end_via
-                    default_via_type = -1 # 0 = input, 1 = output
+                    default_via_type = -1  # 0 = input, 1 = output
                     via_info = [via_loc, via_name, net.name, default_via_type]
                     # add a via to the vias list
                     vias.append(via_info)
-    #print (result_dict)
+    # print (result_dict)
     return vias
 
+
 def sort_vias_by_row(layout_area, row_height, vias):
-    """
-    Sort the vias by row
+    """Sort the vias by row.
+
     :param layout_area: a list [x, y] that stores the area of the layout
     :param vias: a list of vias that need to be sorted
     :return: a list of rows, each containing a list of vias in that row.
@@ -357,7 +364,7 @@ def sort_vias_by_row(layout_area, row_height, vias):
         rows[row_dest].append(via)
     # sort vias in each row based on x-coordinate
     for each_row in rows:
-        each_row.sort(key = lambda x: x[0][0])
+        each_row.sort(key=lambda x: x[0][0])
     return rows
 
 
@@ -369,8 +376,8 @@ def randomize(dataset, labels):
 
 
 def group_via(via_list, max_number, max_distance):
-    """
-    Method to group the vias together to check if they belong to a cell.
+    """Group the vias together to check if they belong to a cell.
+
     :param via_list: a list of all vias.
     :return: a list of groups of vias.
     """
@@ -385,7 +392,7 @@ def group_via(via_list, max_number, max_distance):
                 right_via = via_list[i + j - 1]
                 dist = right_via[0][0] - curr_via[0][0]
                 if dist < max_distance:
-                    curr_list.append(via_list[i:i+j])
+                    curr_list.append(via_list[i : i + j])
         # only add via group list that is not empty
         if len(curr_list) > 0:
             groups.append(curr_list)
@@ -393,15 +400,15 @@ def group_via(via_list, max_number, max_distance):
 
 
 def sorted_components(layout_area, row_height, comps):
-    """
-    Sort the components by row
+    """Sort the components by row.
+
     :param layout_area: a list [x, y] that stores the area of the layout
     :param comps: a list of components that need to be sorted
     :return: a list of rows, each containing a list of components in that row.
     """
     num_rows = layout_area[1] // row_height + 1
     rows = []
-    for i in range(num_rows):
+    for _ in range(num_rows):
         rows.append([])
     for comp in comps:
         comp_y = comp.placed[1]
@@ -409,5 +416,5 @@ def sorted_components(layout_area, row_height, comps):
         rows[row_dest].append(comp)
     # sort vias in each row based on x-coordinate
     for each_row in rows:
-        each_row.sort(key = lambda x: x.placed[0])
+        each_row.sort(key=lambda x: x.placed[0])
     return rows

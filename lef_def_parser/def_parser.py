@@ -19,21 +19,28 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-"""
-DEF Parser
+
+"""DEF Parser.
+
 Author: Tri Minh Cao
 Email: tricao@utdallas.edu
-Date: August 2016
+Date: August 2016.
 """
 
-from lef_def_parser.def_util import *
-from lef_def_parser.util import *
+from lef_def_parser.def_util import (
+    Components,
+    GCellGrid,
+    Nets,
+    Pins,
+    Property,
+    Row,
+    Tracks,
+)
+from lef_def_parser.util import split_parentheses, split_plus, split_space
 
 
 class DefParser:
-    """
-    DefParser will parse a DEF file and store related information of the design.
-    """
+    """DefParser will parse a DEF file and store related information of the design."""
 
     def __init__(self, def_file):
         self.file_path = def_file
@@ -57,11 +64,11 @@ class DefParser:
         self.scale = None
 
     def parse(self):
-        """
-        Main method to parse the DEF file
+        """Parse the DEF file.
+
         :return: void
         """
-        print ("Start parsing DEF file...")
+        print("Start parsing DEF file...")
         # open the file and start reading
         f = open(self.file_path, "r+")
         # the program will run until the end of file f
@@ -72,7 +79,7 @@ class DefParser:
                 # split each sub-string by space
                 info = split_space(each_part)
                 if len(info) > 0:
-                    #print info
+                    # print info
                     if info[0] == "PINS":
                         new_pins = Pins(int(info[1]))
                         self.stack.append(new_pins)
@@ -145,12 +152,11 @@ class DefParser:
                 self.pins = sec
             elif sec.type == "NETS_DEF":
                 self.nets = sec
-        print ("Parsing DEF file done.\n")
+        print("Parsing DEF file done.\n")
 
-    
     def write_def(self, new_def, back_end=True, front_end=True):
-        """
-        Write a new def file based on the information in the DefParser object.
+        """Write a new def file based on the information in the DefParser object.
+
         Note: this method writes all information
         :param new_def: path of the new DEF file
         :param back_end: write BEOL information or not.
@@ -162,5 +168,3 @@ class DefParser:
         f.write(self.to_def_format())
         print("Writing done.")
         f.close()
-
-

@@ -32,12 +32,22 @@ import pickle
 import random
 
 import numpy as np
-import util
-from def_parser import DefParser, sorted_components
-from lef_parser import LefParser
 from sklearn.linear_model import LogisticRegression
 
+from .def_parser import DefParser
+from .lef_parser import LefParser
+from .util import (
+    get_all_vias,
+    group_via,
+    nCr,
+    predict_score,
+    randomize,
+    sort_vias_by_row,
+    sorted_components,
+)
+
 FEATURE_LEN = 21
+MAX_DISTANCE = 2280  # OR2 cell width, can be changed later
 
 
 def save_data_pickle(dataset, filename):
@@ -129,7 +139,7 @@ def train_model(dataset, data_len, num_to_label):
 
     # shuffle the dataset
     random.seed(6789)
-    all_dataset, all_label = util.randomize(all_dataset, all_label)
+    all_dataset, all_label = randomize(all_dataset, all_label)
     num_train = int(0.85 * data_len)
 
     # print(max(all_label))
@@ -206,9 +216,9 @@ def predict_cell(candidates, row, model, lef_data, std_cells):
             # add extra features in case of having less vias
             if num_vias < 4:
                 if num_vias == 1:
-                    remain_dists = 2 * int(util.nCr(4, 2))
+                    remain_dists = 2 * int(nCr(4, 2))
                 else:
-                    remain_dists = 2 * (int(util.nCr(4, 2) - util.nCr(num_vias, 2)))
+                    remain_dists = 2 * (int(nCr(4, 2) - nCr(num_vias, 2)))
                 temp = [0 for i in range(remain_dists)]
                 features.extend(temp)
             # do predict
@@ -281,7 +291,7 @@ def predict_row():
     }
 
     # process
-    components = util.sorted_components(
+    components = sorted_components(
         def_parser.diearea[1], CELL_HEIGHT, def_parser.components.comps
     )
     num_rows = len(components)
@@ -293,7 +303,7 @@ def predict_row():
     # via_groups is only one row
     # for i in range(len(via1_sorted)):
     for i in range(0, 1):
-        via_groups = util.group_via(via1_sorted[i], 3, MAX_DISTANCE)
+        via_groups = group_via(via1_sorted[i], 3, MAX_DISTANCE)
         visited_vias = []  # later, make visited_vias a set to run faster
         cells_pred = []
         for each_via_group in via_groups:
@@ -386,12 +396,12 @@ def old_main_class():
 
     print("Process file:", def_path)
     CELL_HEIGHT = int(float(scale) * lef_parser.cell_height)
-    all_via1 = util.get_all_vias(def_parser, via_type="M2_M1_via")
+    all_via1 = get_all_vias(def_parser, via_type="M2_M1_via")
     # print (all_via1)
     # sort the vias by row
-    via1_sorted = util.sort_vias_by_row(def_parser.diearea[1], CELL_HEIGHT, all_via1)
+    via1_sorted = sort_vias_by_row(def_parser.diearea[1], CELL_HEIGHT, all_via1)
 
-    MAX_DISTANCE = 2280  # OR2 cell width, can be changed later
+    # MAX_DISTANCE = 2280
 
     # predict_row()
 
@@ -558,7 +568,7 @@ if __name__ == "__main__":
 
     print("Process file:", def_path)
     CELL_HEIGHT = int(float(scale) * lef_parser.cell_height)
-    all_via1 = util.get_all_vias(def_parser, via_type="M2_M1_via")
+    all_via1 = get_all_vias(def_parser, via_type="M2_M1_via")
     # print (all_via1[:50])
 
     # build the net_via dictionary
@@ -574,7 +584,7 @@ if __name__ == "__main__":
         nets_vias_dict[net].append(each_via)
 
     # sort the vias by row
-    via1_sorted = util.sort_vias_by_row(def_parser.diearea[1], CELL_HEIGHT, all_via1)
+    via1_sorted = sort_vias_by_row(def_parser.diearea[1], CELL_HEIGHT, all_via1)
 
     # add inputs and outputs from the design to via info
     inputs, outputs = get_inputs_outputs(def_parser)

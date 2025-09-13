@@ -19,22 +19,23 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-"""
-Lef Parser
+"""Lef Parser.
+
 Author: Tri Cao
 Email: tricao@utdallas.edu
 Date: August 2016
 """
-from lef_util import *
-from util import *
+
+import matplotlib.pyplot as plt
+from lef_util import Layer, Macro, Statement, Via
+from util import draw_macro, str_to_list
 
 SCALE = 2000
 
+
 class LefParser:
-    """
-    LefParser object will parse the LEF file and store information about the
-    cell library.
-    """
+    """LefParser object will parse the LEF file and store information about the cell library."""
+
     def __init__(self, lef_file):
         self.lef_path = lef_file
         # dictionaries to map the definitions
@@ -48,8 +49,8 @@ class LefParser:
         self.cell_height = -1
 
     def get_cell_height(self):
-        """
-        Get the general cell height in the library
+        """Get the general cell height in the library.
+
         :return: void
         """
         for macro in self.macro_dict:
@@ -59,26 +60,26 @@ class LefParser:
     def parse(self):
         # Now try using my data structure to parse
         # open the file and start reading
-        print ("Start parsing LEF file...")
-        f = open(self.lef_path, "r")
+        print("Start parsing LEF file...")
+        f = open(self.lef_path)
         # the program will run until the end of file f
         for line in f:
             info = str_to_list(line)
             if len(info) != 0:
                 # if info is a blank line, then move to next line
                 # check if the program is processing a statement
-                #print (info)
+                # print (info)
                 if len(self.stack) != 0:
-                    curState = self.stack[len(self.stack) - 1]
-                    nextState = curState.parse_next(info)
+                    cur_state = self.stack[len(self.stack) - 1]
+                    next_state = cur_state.parse_next(info)
                 else:
-                    curState = Statement()
-                    nextState = curState.parse_next(info)
+                    cur_state = Statement()
+                    next_state = cur_state.parse_next(info)
                 # check the status return from parse_next function
-                if nextState == 0:
+                if next_state == 0:
                     # continue as normal
                     pass
-                elif nextState == 1:
+                elif next_state == 1:
                     # remove the done statement from stack, and add it to the statements
                     # list
                     if len(self.stack) != 0:
@@ -91,27 +92,26 @@ class LefParser:
                         elif isinstance(done_obj, Via):
                             self.via_dict[done_obj.name] = done_obj
                         self.statements.append(done_obj)
-                elif nextState == -1:
+                elif next_state == -1:
                     pass
                 else:
-                    self.stack.append(nextState)
+                    self.stack.append(next_state)
                     # print (nextState)
         f.close()
         # get the cell height of the library
         self.get_cell_height()
-        print ("Parsing LEF file done.")
+        print("Parsing LEF file done.")
 
 
 def draw_cells():
-    """
-    code to draw cells based on LEF information.
+    """Draw cells based on LEF information.
+
     :return: void
     """
     to_draw = []
     to_draw.append(input("Enter the first macro: "))
     to_draw.append(input("Enter the second macro: "))
-    #to_draw = ["AND2X1", "AND2X2"]
-
+    # to_draw = ["AND2X1", "AND2X2"]
 
     plt.figure(figsize=(12, 9), dpi=80)
     plt.axes()
@@ -120,7 +120,7 @@ def draw_cells():
     for macro_name in to_draw:
         # check user's input
         if macro_name not in lef_parser.macro_dict:
-            print ("Error: This macro does not exist in the parsed library.")
+            print("Error: This macro does not exist in the parsed library.")
             quit()
         macro = lef_parser.macro_dict[macro_name]
         sub = plt.subplot(1, 2, num_plot)
@@ -129,27 +129,23 @@ def draw_cells():
         draw_macro(macro)
         num_plot += 1
         # scale the axis of the subplot
-        plt.axis('scaled')
-
+        plt.axis("scaled")
 
     # start drawing
-    print ("Start drawing...")
+    print("Start drawing...")
     plt.show()
 
 
 # Main Class
-if __name__ == '__main__':
+if __name__ == "__main__":
     path = "./libraries/Nangate/NangateOpenCellLibrary.lef"
     lef_parser = LefParser(path)
     lef_parser.parse()
 
     # test via_dict
     via1_2 = lef_parser.via_dict["via1_2"]
-    print (via1_2.layers)
+    print(via1_2.layers)
     for each in via1_2.layers:
-        print (each.name)
+        print(each.name)
         for each_shape in each.shapes:
-            print (each_shape.type)
-
-
-
+            print(each_shape.type)

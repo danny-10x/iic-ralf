@@ -19,25 +19,28 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-"""
-DEF Splitter for Split Manufacturing
+"""DEF Splitter for Split Manufacturing.
+
 Author: Tri Minh Cao
 Email: tricao@utdallas.edu
 Date: August 2016
 """
-from def_parser import *
-from lef_parser import *
+
+from .def_parser import DefParser
+from .lef_parser import LefParser
+from .util import compare_metal
+
 
 def proper_layers(back_end, front_end, split_layer):
     layers = set()
-    if back_end == False and front_end == False:
+    if back_end is False and front_end is False:
         return layers
-    elif back_end == True and front_end == False:
+    elif back_end is True and front_end is False:
         for each in LAYERS:
             if compare_metal(each, split_layer) >= 0:
                 layers.add(each)
         return layers
-    elif back_end == False and front_end == True:
+    elif back_end is False and front_end is True:
         for each in LAYERS:
             if compare_metal(each, split_layer) < 0:
                 layers.add(each)
@@ -45,17 +48,28 @@ def proper_layers(back_end, front_end, split_layer):
     else:
         return LAYERS
 
+
 # names of back-end and front-end layers
-LAYERS = {"poly", "metal1", "metal2", "metal3", "metal4", "metal5", "metal6",
-          "metal7", "metal8", "metal9", "metal10"}
+LAYERS = {
+    "poly",
+    "metal1",
+    "metal2",
+    "metal3",
+    "metal4",
+    "metal5",
+    "metal6",
+    "metal7",
+    "metal8",
+    "metal9",
+    "metal10",
+}
 
 
 # outside function needed to output the NETS data selectively, because
 # possibly we need to check LEF data and that requires bigger scope.
 def output_nets(nets, def_info, lef_info):
-    """
-    Output the NETS section information with possible back end and front
-    end selections.
+    """Output the NETS section information with possible back end and front end selections.
+
     :param def_info: a DefParser object that contains DEF info.
     :param lef_info: a LefParser object
     :return: string
@@ -78,7 +92,8 @@ def output_nets(nets, def_info, lef_info):
 
 
 def output_net_routes(net, def_info, lef_info):
-    """
+    """Output "good" routes on a net.
+
     Return None if there are no routes in the
     :param net: a Net object
     :param def_info: a DefParser object that contains DEF info.
@@ -102,10 +117,10 @@ def output_net_routes(net, def_info, lef_info):
     else:
         return s
 
+
 def output_net(net, def_info, lef_info):
-    """
-    Output a Net object inside the NETS section information with possible back
-    end and front end selections.
+    """Output net with possible back end and front end selections.
+
     :param def_info: a DefParser object that contains DEF info.
     :param lef_info: a LefParser object
     :return: string
@@ -130,7 +145,7 @@ def output_net(net, def_info, lef_info):
             comp_id = each_comp[0]
             pin_name = each_comp[1]
             comp = def_info.components.get_comp(comp_id).get_macro()
-            #print (comp)
+            # print (comp)
             # get info from LEF Parser
             comp_info = lef_info.macro_dict[comp]
             # get pin layer info
@@ -143,9 +158,10 @@ def output_net(net, def_info, lef_info):
     s += " ;"
     return s
 
+
 def output_comps(comps):
-    """
-    Method to write/output a component to the DEF file
+    """Write a component to the DEF file.
+
     :param comp: component to be written
     :param def_info: DEF file data
     :param lef_info: LEF file data
@@ -157,14 +173,15 @@ def output_comps(comps):
     else:
         return ""
 
+
 def output_pin(pin, def_info):
-    """
-    Method to write/output a pin to the DEF file
+    """Write a pin to the DEF file.
+
     :param pin: Pin object
     :param def_info: DEF data
     :return: a string that contains a Pin in DEF format.
     """
-    #print (pin.get_layer())
+    # print (pin.get_layer())
     if pin.get_metal_layer() in GOOD_LAYERS:
         return pin.to_def_format()
     else:
@@ -173,9 +190,10 @@ def output_pin(pin, def_info):
         s += " + DIRECTION " + pin.direction + " + USE " + pin.use + "\n ;"
         return s
 
+
 def output_pins(pins, def_info):
-    """
-    Method to write/output the PINS section to the DEF file.
+    """Write the PINS section to the DEF file.
+
     :param pins: Pin object
     :param def_info: DEF data
     :return: a tring that contains the PINS section in DEF format
@@ -196,9 +214,10 @@ def output_pins(pins, def_info):
     s += "END PINS"
     return s
 
+
 def output_tracks(def_info):
-    """
-    Method to write/output TRACKS to DEF file.
+    """Write TRACKS to DEF file.
+
     :param def_info: DEF data
     :return: a string that contains TRACKS info in DEF format.
     """
@@ -209,9 +228,10 @@ def output_tracks(def_info):
             s += "\n"
     return s
 
+
 def output_new_def(def_info, lef_info):
-    """
-    Output DEF data to new DEF file with selected metal layers.
+    """Output DEF data to new DEF file with selected metal layers.
+
     :param def_info: DEF data
     :param lef_info: LEF data
     :return: a string that contains new DEF data in DEF format.
@@ -232,10 +252,15 @@ def output_new_def(def_info, lef_info):
     s += props.to_def_format()
     s += "\n"
     s += "DIEAREA"
-    s += (" ( " + str(def_info.diearea[0][0]) + " " + str(def_info.diearea[0][1]) +
-          " )")
-    s += (" ( " + str(def_info.diearea[1][0]) + " " + str(def_info.diearea[1][1]) +
-          " )" + " ;")
+    s += " ( " + str(def_info.diearea[0][0]) + " " + str(def_info.diearea[0][1]) + " )"
+    s += (
+        " ( "
+        + str(def_info.diearea[1][0])
+        + " "
+        + str(def_info.diearea[1][1])
+        + " )"
+        + " ;"
+    )
     s += "\n\n"
     for each_row in def_info.rows:
         s += each_row.to_def_format()
@@ -257,14 +282,16 @@ def output_new_def(def_info, lef_info):
     s += output_nets(nets, def_info, lef_info)
     return s
 
+
 def to_bool(str):
     if str.lower() == "false":
         return False
     else:
         return bool(str)
 
+
 # Main Class
-if __name__ == '__main__':
+if __name__ == "__main__":
     # default settings
     BACK_END = True
     FRONT_END = True
@@ -272,10 +299,10 @@ if __name__ == '__main__':
     OUTPUT_FILE = "./def_write/test.def"
     INPUT_FILE = "./libraries/DEF/c1908.def"
     # load last setup from split_def.ini
-    print ("Last setup: ")
-    last_setup = open("split_def.ini", "r")
+    print("Last setup: ")
+    last_setup = open("split_def.ini")
     for line in last_setup:
-        print (line[:-1])
+        print(line[:-1])
         text = line.split()
         if text[0] == "BACK_END":
             BACK_END = to_bool(text[2])
@@ -288,7 +315,7 @@ if __name__ == '__main__':
         elif text[0] == "INPUT_FILE_NAME":
             INPUT_FILE = text[2]
 
-    print ()
+    print()
     last_setup.close()
 
     use_last_setup = input("Use last setup? (y/n): ")
@@ -313,33 +340,33 @@ if __name__ == '__main__':
         OUTPUT_FILE = output_name
         # write current settings to a file
         setup_file = open("split_def.ini", "w+")
-        setup_file.write("INPUT_FILE_NAME = " + input_name +"\n")
+        setup_file.write("INPUT_FILE_NAME = " + input_name + "\n")
         setup_file.write("BACK_END = " + str(BACK_END) + "\n")
         setup_file.write("FRONT_END = " + str(FRONT_END) + "\n")
         setup_file.write("SPLIT_LAYER = " + SPLIT_LAYER + "\n")
-        setup_file.write("OUTPUT_FILE_NAME = " + output_name +"\n")
+        setup_file.write("OUTPUT_FILE_NAME = " + output_name + "\n")
         setup_file.close()
     else:
-        print ("The program will use the last setup listed above.")
+        print("The program will use the last setup listed above.")
 
-    #print (BACK_END)
-    #print (FRONT_END)
-    #print (SPLIT_LAYER)
+    # print (BACK_END)
+    # print (FRONT_END)
+    # print (SPLIT_LAYER)
 
     # need to know what layers are good for the current back-end and
     # front-end settings
     GOOD_LAYERS = proper_layers(BACK_END, FRONT_END, SPLIT_LAYER)
 
-    print ()
+    print()
     lef_file = "./libraries/Nangate/NangateOpenCellLibrary.lef"
     lef_parser = LefParser(lef_file)
     lef_parser.parse()
-    print ()
+    print()
     def_file = INPUT_FILE
     def_parser = DefParser(def_file)
     def_parser.parse()
-    print ("Writing data to new DEF file with path: " + OUTPUT_FILE )
+    print("Writing data to new DEF file with path: " + OUTPUT_FILE)
     out_file = open(OUTPUT_FILE, "w+")
     out_file.write(output_new_def(def_parser, lef_parser))
     out_file.close()
-    print ("Writing data done.")
+    print("Writing data done.")
