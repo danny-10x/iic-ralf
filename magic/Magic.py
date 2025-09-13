@@ -425,7 +425,7 @@ class Magic:
         #    command.append(f"flatten -doinplace")
         return command
 
-    def place_circuit(self, name: str, path="Magic/Placement/") -> list[str]:
+    def place_circuit(self, name: str, path="magic/placement/") -> list[str]:
         """Generate the commands to place the placed cells of the circuit.
 
         Args:

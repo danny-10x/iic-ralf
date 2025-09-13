@@ -47,4 +47,4 @@ file.close()
 circuit = die.circuit
 
 # instantiate the circuit cells in magic
-instantiate_circuit(circuit, "Magic/Devices")
+instantiate_circuit(circuit, "magic/devices")

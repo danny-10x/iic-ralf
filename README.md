@@ -87,7 +87,7 @@ To view the placement in Magic run the script `main_place_circuit.py`.
 python3 main_place_circuit.py
 ```
 Don't forget to adapt the variable `CIRCUIT_NAME` to your circuits name!\
-The generated Magic file of the placement will be located under `Magic/Placement/<CIRCUIT_NAME>.mag`.
+The generated Magic file of the placement will be located under `magic/placement/<CIRCUIT_NAME>.mag`.
 
 ## Step 4: Do a routing
 The routing of an already placed circuit can be performed by running the script `main_routing.py`.
@@ -102,14 +102,14 @@ To use the negotiation based wire-planner before the detailed router set the var
   
 Don't forget to adapt the variable `CIRCUIT_NAME` to your circuits name!\
 
-Per default, the script generates a `.tcl`-file located under `Magic/Routing/<CIRCUIT_NAME>_routing.tcl`.\
+Per default, the script generates a `.tcl`-file located under `magic/routing/<CIRCUIT_NAME>_routing.tcl`.\
 To view the routing, run the `main_place_route_circuit.py` script. Alternatively the placement can be first viewed in Magic by
 ```
-magic Magic/Placement/<CIRCUIT_NAME>.mag
+magic magic/placement/<CIRCUIT_NAME>.mag
 ```
 and then routed by using the Magic shell:
 ```
-source Magic/Routing/<CIRCUIT_NAME>_routing.tcl
+source magic/routing/<CIRCUIT_NAME>_routing.tcl
 ```
 
 ### Net-rules file

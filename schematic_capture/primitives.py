@@ -205,7 +205,7 @@ class DifferentialPair(PrimitiveDeviceComposition):
                 layer=global_pdk.get_layer("nwell"),
                 net=self.terminal_nets["B"],
             )
-            self._placement_rules = placement_rules.placement_rules(
+            self._placement_rules = placement_rules.PlacementRules(
                 cell=self.cell, rules=[rule]
             )
         else:
@@ -329,7 +329,7 @@ class DifferentialLoad(PrimitiveDeviceComposition):
                 layer=global_pdk.get_layer("nwell"),
                 net=self.terminal_nets["B"],
             )
-            self._placement_rules = placement_rules.placement_rules(
+            self._placement_rules = placement_rules.PlacementRules(
                 cell=self.cell, rules=[rule]
             )
         else:
@@ -451,7 +451,7 @@ class CrossCoupledPair(PrimitiveDeviceComposition):
                 layer=global_pdk.get_layer("nwell"),
                 net=self.terminal_nets["B"],
             )
-            self._placement_rules = placement_rules.placement_rules(
+            self._placement_rules = placement_rules.PlacementRules(
                 cell=self.cell, rules=[rule]
             )
         else:

@@ -23,7 +23,6 @@ import copy
 import logging
 import os
 import shutil
-import sys
 
 from magic.cell import Cell
 from magic.magic import Magic
@@ -178,20 +177,19 @@ def add_cells(circ: Circuit, path="magic/devices"):
         print(f"Generating new view under '{path}'!")
         instantiate_circuit(circ, path)
         add_cells(circ=circ, path=path)
-    except Exception:
-        print(f"Adding cells to {circ} failed!")
-        sys.exit(1)
+    except Exception as e:
+        raise ValueError(f"Adding cells to {circ} failed!") from e
 
 
 def place_circuit(
-    name: str, circuit: Circuit, path="Magic/Placement", debug=False, clean_path=True
+    name: str, circuit: Circuit, path="magic/placement", debug=False, clean_path=True
 ):
     """Place the devices of circuit <Circuit> in magic.
 
     Args:
         name (str): Name of the top-cell.
         circuit (Circuit): Circuit which shall be placed.
-        path (str, optional): Path to the resulting top-cell. Defaults to 'Magic/Placement'.
+        path (str, optional): Path to the resulting top-cell. Defaults to 'magic/placement'.
         debug (bool, optional): If True, only the tcl script will be generated, but not executed. Defaults to False.
         clean_path (bool, optional): If True, the content at <path> will be deleted, before stating the placement. Defaults to True.
 
@@ -231,7 +229,7 @@ def place_circuit(
 
 
 def place_circuit_hierachical(
-    name: str, circuit: Circuit, path="Magic/Placement", clean_path=True
+    name: str, circuit: Circuit, path="magic/placement", clean_path=True
 ):
     """Do the placement of a circuit hierarchical.
 
@@ -241,7 +239,7 @@ def place_circuit_hierachical(
     Args:
         name (str): Name of the top-cell.
         circuit (Circuit): Circuit which shall be placed.
-        path (str, optional): Path of the placement. Defaults to "Magic/Placement".
+        path (str, optional): Path of the placement. Defaults to "magic/placement".
         clean_path (bool, optional): True, if the path should be cleaned before placing the devices. Defaults to True.
 
     """

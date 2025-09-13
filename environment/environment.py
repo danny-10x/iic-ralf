@@ -313,7 +313,7 @@ class Placement:
 
         """
         # initialize the circuit
-        self.init_Circuit()
+        self.init_circuit()
 
         # reset the placed cells
         self._placed_cells = []

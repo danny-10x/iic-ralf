@@ -80,7 +80,7 @@ def rl_placement():
 
     # instantiate the circuit cells in magic
     if INSTANTIATE_CELLS_IN_MAGIC:
-        instantiate_circuit(circuit, "Magic/Devices")
+        instantiate_circuit(circuit, "magic/devices")
 
     # add the cells to the devices
     add_cells(circuit, "magic/devices")

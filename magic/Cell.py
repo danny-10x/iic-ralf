@@ -28,7 +28,27 @@ if TYPE_CHECKING:
     from schematic_capture.devices import Device
     from schematic_capture.net import Net
 
-from .magic_terminal_utils import MagicTerminal, PrimitiveDevice
+from .magic_terminal_utils import (
+    MagicTerminal,
+    PrimitiveDevice,
+    get_terminals_capacitor,
+    get_terminals_cross_coupled_pair,
+    get_terminals_differential_load,
+    get_terminals_differential_pair,
+    get_terminals_mos,
+    get_terminals_rstring,
+    get_terminals_three_term_resistor,
+)
+
+device_to_get_terminal_func_map = {
+    "MOS": get_terminals_mos,
+    "DifferentialPair": get_terminals_differential_pair,
+    "DifferentialLoad": get_terminals_differential_load,
+    "CrossCoupledPair": get_terminals_cross_coupled_pair,
+    "ThreeTermResistor": get_terminals_three_term_resistor,
+    "RString": get_terminals_rstring,
+    "Capacitor": get_terminals_capacitor,
+}
 
 
 class Cell:
@@ -339,10 +359,10 @@ class Cell:
         if self._device:
             try:
                 # get the name of the devices class
-                suffix = self._device.__class__.__name__
+                device_class = self._device.__class__.__name__
                 # set the name of the generator method
-                func = "get_terminals_" + suffix
-                self._terminals = globals()[func](
+                func = device_to_get_terminal_func_map[device_class]
+                self._terminals = func(
                     self
                 )  # call the generator method for the terminals
 
