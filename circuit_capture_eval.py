@@ -33,7 +33,7 @@ from schematic_capture.utils import (
 CIRCUIT_FILE = "circuits/examples/CCLatch.spice"  # Input spice-netlist
 CIRCUIT_NAME = "CCLatch"  # Name of the circuit
 NET_RULES_FILE = (
-    None  # "NetRules/net_rules.json"               #Net-rules definition file
+    None  # "net_rules/net_rules.json"               #Net-rules definition file
 )
 
 
