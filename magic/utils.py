@@ -35,12 +35,12 @@ from schematic_capture.utils import get_bottom_up_topology, get_top_down_topolog
 logger = logging.getLogger(__name__)
 
 
-def instantiate_circuit(Circuit: Circuit, path="Magic/Devices"):
+def instantiate_circuit(Circuit: Circuit, path="magic/devices"):
     """Instantiate the devices of the given circuit, and all its possible sub-circuits in magic.
 
     Args:
         Circuit (Circuit): Circuit whose cell-view shall be generated.
-        path (str, optional): Path where the resulting files, will be saved. Defaults to 'Magic/Devices'.
+        path (str, optional): Path where the resulting files, will be saved. Defaults to 'magic/devices'.
                             The files will be stored under:
                                 <working_dir>/<path>
 
@@ -67,12 +67,12 @@ def instantiate_circuit(Circuit: Circuit, path="Magic/Devices"):
         logger.debug(f"Instantiated devices of {c} at topological layer {t}.")
 
 
-def instantiate_devices(circuit: Circuit, path="Magic/Devices", del_path=True):
+def instantiate_devices(circuit: Circuit, path="magic/devices", del_path=True):
     """Instantiate the devices of a circuit (Without the devices of possible sub-circuits).
 
     Args:
         Circuit (Circuit): Circuit which shall be instantiated in magic.
-        path (str, optional): Path where the resulting files, will be saved. Defaults to 'Magic/Devices'.
+        path (str, optional): Path where the resulting files, will be saved. Defaults to 'magic/devices'.
                             The files will be stored under:
                                 <working_dir>/<path>
         del_path (bool, optional): If the content at <path> shall be deleted, before the instantiation. Defaults to True.
@@ -118,12 +118,12 @@ def instantiate_devices(circuit: Circuit, path="Magic/Devices", del_path=True):
                 device.cell.add_path(os.path.realpath(f"{path}"))
 
 
-def generate_cell(name: str, path="Magic/Devices") -> Cell:
+def generate_cell(name: str, path="magic/devices") -> Cell:
     """Generate a Cell-view.
 
     Args:
         name (str): Name of the cell/device for which the cell-view shall be generated.
-        path (str, optional): Path to the magic-view of the cell. Defaults to 'Magic/Devices'.
+        path (str, optional): Path to the magic-view of the cell. Defaults to 'magic/devices'.
 
     Raises:
         FileNotFoundError: If the magic-view can't be found.
@@ -155,12 +155,12 @@ def generate_cell(name: str, path="Magic/Devices") -> Cell:
     return cell
 
 
-def add_cells(circ: Circuit, path="Magic/Devices"):
+def add_cells(circ: Circuit, path="magic/devices"):
     """Add a cell-view to the circuit.
 
     Args:
         circ (Circuit): Circuit whose cell-view shall be generated.
-        path (str, optional): Path to the magic-view of the devices. Defaults to 'Magic/Devices'.
+        path (str, optional): Path to the magic-view of the devices. Defaults to 'magic/devices'.
 
     """
     try:
