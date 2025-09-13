@@ -219,7 +219,7 @@ class PlacementSolver(Solver):
         floorplan = seqpair.decode(problem=problem, rotations=rotations)
 
         data = pd.DataFrame(rpp.logger)
-        data.to_csv(f"Logs/{problem.circuit.name}_simanneal_log.csv")
+        data.to_csv(f"logs/{problem.circuit.name}_simanneal_log.csv")
 
         return PlacementSolution(
             sequence_pair=seqpair, floorplan=floorplan, problem=problem

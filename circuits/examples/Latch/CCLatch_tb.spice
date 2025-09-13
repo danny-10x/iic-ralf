@@ -1,4 +1,4 @@
-** sch_path: /home/jakob/Documents/RALF/Circuits/Examples/Latch/CCLatch_tb.sch
+** sch_path: ./circuits/examples/Latch/CCLatch_tb.sch
 **.subckt CCLatch_tb
 x1 VDD out outn in inn clk GND CCLatch
 V1 VDD GND 1.8
@@ -28,9 +28,9 @@ tran 10ns 1000ns
 **** end user architecture code
 **.ends
 
-* expanding   symbol:  /home/jakob/Documents/RALF/Circuits/Examples/Latch/CCLatch.sym # of pins=7
-** sym_path: /home/jakob/Documents/RALF/Circuits/Examples/Latch/CCLatch.sym
-** sch_path: /home/jakob/Documents/RALF/Circuits/Examples/Latch/CCLatch.sch
+* expanding   symbol:  ./circuits/examples/Latch/CCLatch.sym # of pins=7
+** sym_path: ./circuits/examples/Latch/CCLatch.sym
+** sch_path: ./circuits/examples/Latch/CCLatch.sch
 .subckt CCLatch Vdd out outn in inn clk Vss
 *.iopin Vdd
 *.iopin Vss

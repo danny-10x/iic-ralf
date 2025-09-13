@@ -99,6 +99,6 @@ C {devices/iopin.sym} 170 -80 2 0 {name=p14 lab=VGND}
 C {devices/ipin.sym} 170 -460 0 0 {name=p15 lab=Vbdap}
 C {devices/lab_wire.sym} 650 -340 0 0 {name=p16 sig_type=std_logic lab=vop1}
 C {devices/title.sym} 160 0 0 0 {name=l1 author="Jakob Ratschenberger"}
-C {/home/jakob/Documents/RALF/Circuits/Examples/OpAmp/DiffAmp.sym} 420 -430 0 0 {name=x1}
-C {/home/jakob/Documents/RALF/Circuits/Examples/OpAmp/CSAmp.sym} 860 -500 0 0 {name=x2}
-C {/home/jakob/Documents/RALF/Circuits/Examples/OpAmp/CSAmp.sym} 860 -320 0 0 {name=x3}
+C {./circuits/examples/OpAmp/DiffAmp.sym} 420 -430 0 0 {name=x1}
+C {./circuits/examples/OpAmp/CSAmp.sym} 860 -500 0 0 {name=x2}
+C {./circuits/examples/OpAmp/CSAmp.sym} 860 -320 0 0 {name=x3}

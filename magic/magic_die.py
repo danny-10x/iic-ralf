@@ -24,7 +24,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from lef_def_parser.def_util import Layer as lef_Layer
     from lef_def_parser.def_util import Pin
-    from PDK.Layers import Layer
+    from PDK.layers import Layer
     from schematic_capture.circuit import Circuit
 
 

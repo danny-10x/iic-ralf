@@ -1,4 +1,4 @@
-** sch_path: /home/jakob/Documents/RALF/Circuits/Examples/OpAmp/DiffAmp.sch
+** sch_path: ./circuits/examples/OpAmp/DiffAmp.sch
 **.subckt DiffAmp Vdd Vss Vp Vn Vbn Vbp Vop Von
 *.iopin Vdd
 *.iopin Vss

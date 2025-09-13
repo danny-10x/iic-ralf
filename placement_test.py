@@ -32,7 +32,7 @@ from routing_v2.utils import get_nets_and_pins
 from schematic_capture.circuit import Circuit
 from schematic_capture.devices import SubDevice
 from schematic_capture.net import SubNet
-from schematic_capture.rstring import include_RStrings_hierarchical
+from schematic_capture.rstring import include_rstrings_hierarchical
 from schematic_capture.utils import (
     include_primitives_hierarchical,
     setup_circuit,
@@ -41,7 +41,7 @@ from schematic_capture.utils import (
 faulthandler.enable()
 
 # global variables to control the placement
-CIRCUIT_FILE = "Circuits/Examples/DiffAmp.spice"  # Input spice-netlist
+CIRCUIT_FILE = "circuits/examples/DiffAmp.spice"  # Input spice-netlist
 CIRCUIT_NAME = "DiffAmp"  # Name of the top-circuit
 
 placement = {
@@ -55,7 +55,7 @@ circuit = setup_circuit(CIRCUIT_FILE, CIRCUIT_NAME, [], net_rules_file=None)
 
 # include primitive compositions into the circuit
 include_primitives_hierarchical(circuit)
-include_RStrings_hierarchical(circuit)
+include_rstrings_hierarchical(circuit)
 
 # instantiate the circuit cells in magic
 instantiate_circuit(circuit, "magic/devices")

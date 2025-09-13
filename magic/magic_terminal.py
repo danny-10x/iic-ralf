@@ -23,7 +23,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from magic.cell import Cell
-    from PDK.Layers import Layer
+    from PDK.layers import Layer
     from schematic_capture.net import Net
 
 import math
@@ -182,6 +182,7 @@ class MagicPin:
         return self._magic_terminal
 
     def __eq__(self, __value: object) -> bool:
+        """Override default behaviour."""
         return (
             isinstance(__value, MagicPin)
             and (self._x == __value._x)
@@ -306,6 +307,7 @@ class MagicTerminal:
         self._pins = []
 
     def __repr__(self) -> str:
+        """Override default behaviour."""
         return f"{self.__class__.__name__}(name={self.name}, cell={self.parent_cell}, net={self.net})"
 
     @property

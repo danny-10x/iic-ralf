@@ -24,12 +24,12 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from Magic.MagicDie import MagicDie
+    from magic.magic_die import MagicDie
 
 
 import pickle
 
-from Magic.utils import instantiate_circuit
+from magic.utils import instantiate_circuit
 
 #########################################################################
 
@@ -38,7 +38,7 @@ CIRCUIT_NAME = "DiffAmp"  # Name of the circuit
 #########################################################################
 
 # load the placed circuit
-file = open(f"PlacementCircuits/{CIRCUIT_NAME}_placement.pkl", "rb")
+file = open(f"placement_circuits/{CIRCUIT_NAME}_placement.pkl", "rb")
 die: MagicDie
 die = pickle.load(file)
 file.close()

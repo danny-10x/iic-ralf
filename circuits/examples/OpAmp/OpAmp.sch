@@ -94,9 +94,9 @@ C {devices/iopin.sym} 260 -460 0 1 {name=p9 lab=VPWR}
 C {devices/iopin.sym} 260 -60 2 0 {name=p10 lab=VGND}
 C {devices/lab_wire.sym} 320 -410 0 0 {name=p1 sig_type=std_logic lab=vcmfb}
 C {devices/title.sym} 160 0 0 0 {name=l1 author="Jakob Ratschenberger"}
-C {/home/jakob/Documents/RALF/Circuits/Examples/OpAmp/CMMFeedback.sym} 500 -230 0 1 {name=x2}
-C {/home/jakob/Documents/RALF/Circuits/Examples/OpAmp/GmBias.sym} 500 -110 0 1 {name=x3}
-C {/home/jakob/Documents/RALF/Circuits/Examples/OpAmp/MillerOpAmp.sym} 500 -370 0 0 {name=x1}
+C {./circuits/examples/OpAmp/CMMFeedback.sym} 500 -230 0 1 {name=x2}
+C {./circuits/examples/OpAmp/GmBias.sym} 500 -110 0 1 {name=x3}
+C {./circuits/examples/OpAmp/MillerOpAmp.sym} 500 -370 0 0 {name=x1}
 C {devices/lab_wire.sym} 270 -330 0 0 {name=p11 sig_type=std_logic lab=vbias}
 C {devices/lab_wire.sym} 680 -200 0 1 {name=p12 sig_type=std_logic lab=vbias}
 C {devices/lab_wire.sym} 270 -110 0 0 {name=p13 sig_type=std_logic lab=vbias}

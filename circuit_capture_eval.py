@@ -22,7 +22,7 @@
 import matplotlib.pyplot as plt
 import networkx as nx
 
-from schematic_capture.rstring import include_RStrings_hierarchical
+from schematic_capture.rstring import include_rstrings_hierarchical
 from schematic_capture.utils import (
     get_top_down_topology,
     include_primitives_hierarchical,
@@ -30,7 +30,7 @@ from schematic_capture.utils import (
 )
 
 # global variables to control the placement
-CIRCUIT_FILE = "Circuits/Examples/CCLatch.spice"  # Input spice-netlist
+CIRCUIT_FILE = "circuits/examples/CCLatch.spice"  # Input spice-netlist
 CIRCUIT_NAME = "CCLatch"  # Name of the circuit
 NET_RULES_FILE = (
     None  # "NetRules/net_rules.json"               #Net-rules definition file
@@ -47,7 +47,7 @@ circuit_graphs = [(c, c.get_bipartite_graph()) for t, c in topology]
 
 # include primitive compositions into the circuit
 include_primitives_hierarchical(C)
-include_RStrings_hierarchical(C)
+include_rstrings_hierarchical(C)
 
 prim_graphs = [(c, c.get_bipartite_graph()) for t, c in topology]
 

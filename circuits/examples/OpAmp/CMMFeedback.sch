@@ -185,4 +185,4 @@ C {devices/lab_wire.sym} 410 -190 3 0 {name=p3 sig_type=std_logic lab=Vss}
 C {devices/lab_wire.sym} 410 -580 1 0 {name=p4 sig_type=std_logic lab=Vss}
 C {devices/lab_wire.sym} 890 -480 0 1 {name=p5 sig_type=std_logic lab=vdts}
 C {devices/title.sym} 150 0 0 0 {name=l1 author="Jakob Ratschenberger"}
-C {/home/jakob/Documents/RALF/Circuits/Examples/OpAmp/DiffAmp.sym} 1000 -400 0 0 {name=x1}
+C {./circuits/examples/OpAmp/DiffAmp.sym} 1000 -400 0 0 {name=x1}

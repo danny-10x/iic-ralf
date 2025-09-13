@@ -1,4 +1,4 @@
-** sch_path: /home/jakob/Documents/RALF/Circuits/Examples/OpAmp/OpAmp.sch
+** sch_path: ./circuits/examples/OpAmp/OpAmp.sch
 **.subckt OpAmp Von Vop Vocm Vp Vn VPWR VGND
 *.opin Von
 *.opin Vop
@@ -12,10 +12,10 @@ x3 VPWR vbias VGND GmBias
 x1 VPWR Von vcmfb Vp Vn vbias vbias Vop VGND MillerOpAmp
 **.ends
 
-* expanding   symbol:  /home/jakob/Documents/RALF/Circuits/Examples/OpAmp/CMMFeedback.sym # of
+* expanding   symbol:  ./circuits/examples/OpAmp/CMMFeedback.sym # of
 *+ pins=7
-** sym_path: /home/jakob/Documents/RALF/Circuits/Examples/OpAmp/CMMFeedback.sym
-** sch_path: /home/jakob/Documents/RALF/Circuits/Examples/OpAmp/CMMFeedback.sch
+** sym_path: ./circuits/examples/OpAmp/CMMFeedback.sym
+** sch_path: ./circuits/examples/OpAmp/CMMFeedback.sch
 .subckt CMMFeedback Vdd Vcmref Vp Vout Vn Vbdan Vss
 *.ipin Vbdan
 *.opin Vout
@@ -38,9 +38,9 @@ x1 Vdd vdts Vout vdts Vcmref vcmi Vbdan Vss DiffAmp
 .ends
 
 
-* expanding   symbol:  /home/jakob/Documents/RALF/Circuits/Examples/OpAmp/GmBias.sym # of pins=3
-** sym_path: /home/jakob/Documents/RALF/Circuits/Examples/OpAmp/GmBias.sym
-** sch_path: /home/jakob/Documents/RALF/Circuits/Examples/OpAmp/GmBias.sch
+* expanding   symbol:  ./circuits/examples/OpAmp/GmBias.sym # of pins=3
+** sym_path: ./circuits/examples/OpAmp/GmBias.sym
+** sch_path: ./circuits/examples/OpAmp/GmBias.sch
 .subckt GmBias Vdd Vbias Vss
 *.opin Vbias
 *.iopin Vss
@@ -64,10 +64,10 @@ XM4 v1 v1 Vbias Vss sky130_fd_pr__nfet_01v8 L=2 W=1 nf=1 ad='int((nf+1)/2) * W/n
 .ends
 
 
-* expanding   symbol:  /home/jakob/Documents/RALF/Circuits/Examples/OpAmp/MillerOpAmp.sym # of
+* expanding   symbol:  ./circuits/examples/OpAmp/MillerOpAmp.sym # of
 *+ pins=9
-** sym_path: /home/jakob/Documents/RALF/Circuits/Examples/OpAmp/MillerOpAmp.sym
-** sch_path: /home/jakob/Documents/RALF/Circuits/Examples/OpAmp/MillerOpAmp.sch
+** sym_path: ./circuits/examples/OpAmp/MillerOpAmp.sym
+** sch_path: ./circuits/examples/OpAmp/MillerOpAmp.sch
 .subckt MillerOpAmp VPWR Von Vbdap Vp Vn Vbdan Vbcsn Vop VGND
 *.opin Von
 *.opin Vop
@@ -86,9 +86,9 @@ x3 VPWR vop1 Vop Vbcsn VGND CSAmp
 .ends
 
 
-* expanding   symbol:  /home/jakob/Documents/RALF/Circuits/Examples/OpAmp/DiffAmp.sym # of pins=8
-** sym_path: /home/jakob/Documents/RALF/Circuits/Examples/OpAmp/DiffAmp.sym
-** sch_path: /home/jakob/Documents/RALF/Circuits/Examples/OpAmp/DiffAmp.sch
+* expanding   symbol:  ./circuits/examples/OpAmp/DiffAmp.sym # of pins=8
+** sym_path: ./circuits/examples/OpAmp/DiffAmp.sym
+** sch_path: ./circuits/examples/OpAmp/DiffAmp.sch
 .subckt DiffAmp Vdd Vbp Von Vop Vp Vn Vbn Vss
 *.iopin Vdd
 *.iopin Vss
@@ -116,9 +116,9 @@ XM5 vmid Vbn Vss Vss sky130_fd_pr__nfet_01v8 L=2 W=1 nf=1 ad='int((nf+1)/2) * W/
 .ends
 
 
-* expanding   symbol:  /home/jakob/Documents/RALF/Circuits/Examples/OpAmp/CSAmp.sym # of pins=5
-** sym_path: /home/jakob/Documents/RALF/Circuits/Examples/OpAmp/CSAmp.sym
-** sch_path: /home/jakob/Documents/RALF/Circuits/Examples/OpAmp/CSAmp.sch
+* expanding   symbol:  ./circuits/examples/OpAmp/CSAmp.sym # of pins=5
+** sym_path: ./circuits/examples/OpAmp/CSAmp.sym
+** sch_path: ./circuits/examples/OpAmp/CSAmp.sch
 .subckt CSAmp Vdd Vi Vo Vbn Vss
 *.ipin Vbn
 *.ipin Vi

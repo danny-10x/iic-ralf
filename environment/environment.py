@@ -38,7 +38,7 @@ from torch_geometric.utils.convert import from_networkx
 
 from environment.cell_sliding import cell_slide3
 from environment.rudy import Rudy
-from magic.DRC import (
+from magic.drc import (
     drc_collidates,
     drc_magic_check_cell,
 )

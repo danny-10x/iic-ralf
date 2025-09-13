@@ -8,7 +8,7 @@ As part of a master's thesis, at the Institute for Integrated Circuits (IIC), Jo
 an automated analog layout design flow was developed.
 
 <p align="center">
-    <img src="Images/RALF_methodology.png" width="600" />
+    <img src="images/RALF_methodology.png" width="600" />
 <p/>
 
 The input of the flow is a netlist in the SPICE format composed of devices using the SkyWater Technologies SKY130 process design kit. Optionally, a file in the json-format that contains information for the routing task, like minimum wire widths, can also be specified. From the netlist, the circuit is captured and converted into an internal data structure, that is capable for the tasks of the remaining flow. The subsequent stage annotates devices which are forming smaller circuits and match those in a precompiled database. Thus, these precompiled circuits allow the finding of differential pairs, differential loads, cross-coupled pairs, and in series connected resistors, so called R-strings. 
@@ -79,7 +79,7 @@ For the simulated annealing based placement run:
 ```
 python3 main_RPS_placement.py
 ```
-The placed circuit will be stored under `PlacementCircuits/<circuit_name>_placement.pkl`.
+The placed circuit will be stored under `placement_circuits/<circuit_name>_placement.pkl`.
 
 ## Step 3: View the placement in Magic
 To view the placement in Magic run the script `main_place_circuit.py`.
@@ -164,12 +164,12 @@ A net-rules file contains information for the routing stage.
 
 # Example - Differential amplifier 
 
-In the following, the layout generation flow for the circuit `Circuits/Examples/DiffAmp.spice`, will be presented.
+In the following, the layout generation flow for the circuit `circuits/examples/DiffAmp.spice`, will be presented.
 
 ## Schematic
 
 <p align="center">
-    <img src="Images/Example/DiffAmp_circuit.png" width="300" />
+    <img src="images/Example/DiffAmp_circuit.png" width="300" />
 <p/>
 
 ## Placement
@@ -184,8 +184,8 @@ python3 main_place_circuit.py
 
 Resulting placement:
 <p align="center">
-    <img src="Images/Example/DiffAmp_placement1.png" width="300" />
-    <img src="Images/Example/DiffAmp_placement2.png" width="300" />
+    <img src="images/Example/DiffAmp_placement1.png" width="300" />
+    <img src="images/Example/DiffAmp_placement2.png" width="300" />
 <p/>    
 
 
@@ -200,6 +200,6 @@ python3 main_place_route_circuit.py
 ```
 Resulting routing:
 <p align="center">
-    <img src="Images/Example/DiffAmp_routing1.png" width="300" />
-    <img src="Images/Example/DiffAmp_routing2.png" width="300" />
+    <img src="images/Example/DiffAmp_routing1.png" width="300" />
+    <img src="images/Example/DiffAmp_routing2.png" width="300" />
 <p/> 

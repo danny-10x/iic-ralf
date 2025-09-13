@@ -22,34 +22,34 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from schematic_capture.Circuit import Circuit
-    from schematic_capture.Devices import ThreeTermResistor
-    from schematic_capture.Net import Net
+    from schematic_capture.circuit import Circuit
+    from schematic_capture.devices import ThreeTermResistor
+    from schematic_capture.net import Net
 
 import itertools
 
 import networkx as nx
 import networkx.algorithms.isomorphism as isomorphism
 
-from Rules.RoutingRules import RoutingRule
-from schematic_capture.Devices import (
+from rules.routing_rules import RoutingRule
+from schematic_capture.devices import (
     SUPPORTED_DEVICES,
     ThreeTermResistor,
 )
-from schematic_capture.Ports import Pin
-from schematic_capture.Primitives import PrimitiveDeviceComposition
+from schematic_capture.ports import Pin
+from schematic_capture.primitives import PrimitiveDeviceComposition
 from schematic_capture.utils import get_bottom_up_topology, setup_circuit
 
 RSTRING_PATHS = [
-    "Circuits/Primitives/RString/RString1.spice",
-    "Circuits/Primitives/RString/RString2.spice",
-    "Circuits/Primitives/RString/RString3.spice",
-    "Circuits/Primitives/RString/RString4.spice",
+    "circuits/primitives/RString/RString1.spice",
+    "circuits/primitives/RString/RString2.spice",
+    "circuits/primitives/RString/RString3.spice",
+    "circuits/primitives/RString/RString4.spice",
 ]
 
 
-def include_RStrings_hierarchical(circ: Circuit):
-    """Finds and includes RStrings into a hierarchical circuit.
+def include_rstrings_hierarchical(circ: Circuit):
+    """Find and includes RStrings into a hierarchical circuit.
 
     Args:
         circ (Circuit): Circuit to include primitives.
@@ -58,15 +58,16 @@ def include_RStrings_hierarchical(circ: Circuit):
     # get the topology of the circuit
     topology = get_bottom_up_topology(circ)
 
-    for t, circ in topology:
+    for _, circ in topology:
         # find RStrings for each circuit
         # and include them into the circuit
-        rStrings = get_RStrings(circ, exclude_nets=[])
-        circ.include_primitives(rStrings)
+        rstrings = get_rstrings(circ, exclude_nets=[])
+        circ.include_primitives(rstrings)
 
 
 def node_match(n1, n2) -> bool:
-    """Checks if two nodes match.
+    """Check if two nodes match.
+
         Nodes match if they have the same label.
         If nodes are devices, they only match if they have the same type.
 
@@ -83,7 +84,7 @@ def node_match(n1, n2) -> bool:
         # check if the label is 'Device'.
         if n1["label"] == "Device":
             # check if both have the same device-type.
-            if type(n1["Device"]) == type(n2["Device"]):
+            if type(n1["Device"]) is type(n2["Device"]):  # TODO: Fix this
                 return True
             else:
                 return False
@@ -94,7 +95,8 @@ def node_match(n1, n2) -> bool:
 
 
 def edge_match(e1, e2) -> bool:
-    """Checks if two edges match.
+    """Check if two edges match.
+
         Two edges match if they originate from the same terminals.
 
     Args:
@@ -108,8 +110,8 @@ def edge_match(e1, e2) -> bool:
     return e1[0]["Terminal"] == e2[0]["Terminal"]
 
 
-def get_RStrings(
-    circ: Circuit, exclude_nets: list[Net] = []
+def get_rstrings(
+    circ: Circuit, exclude_nets: list[Net] = ()
 ) -> dict[str, list[RString]]:
     """Find all RStrings in the circuit and make RString devices out of them.
 
@@ -129,18 +131,18 @@ def get_RStrings(
         primitive_circuit = setup_circuit(path, "RString", [], net_rules_file=None)
 
         # get the graphs
-        G1 = circ.get_bipartite_graph(exclude_nets=exclude_nets)
-        G2 = primitive_circuit.get_bipartite_graph(exclude_nets=["Vl", "Vh", "VB"])
+        graph1 = circ.get_bipartite_graph(exclude_nets=exclude_nets)
+        graph2 = primitive_circuit.get_bipartite_graph(exclude_nets=["Vl", "Vh", "VB"])
 
         # find the RStrings in the circuit
-        GM = isomorphism.GraphMatcher(
-            G1, G2, node_match=node_match, edge_match=edge_match
+        graph_matcher = isomorphism.GraphMatcher(
+            graph1, graph2, node_match=node_match, edge_match=edge_match
         )
 
         # get the edges which form a RString
         rstring_edges = []
         # iterate over common edges
-        for gm in GM.subgraph_isomorphisms_iter():
+        for gm in graph_matcher.subgraph_isomorphisms_iter():
             # gm : dict
             # key : Name of matching device in circ
             # value : Name of matching device in primitive_circuit
@@ -180,8 +182,8 @@ def get_RStrings(
     for comp in components:
         # traverse the nodes starting by a node with only one edge (=start of the RString)
         starting_nodes = list(filter(lambda x: x[1] == 1, tuple(comp.degree)))
-        T = nx.dfs_tree(comp, source=starting_nodes[0][0])
-        rstrings.append(list(T))
+        tree_ = nx.dfs_tree(comp, source=starting_nodes[0][0])
+        rstrings.append(list(tree_))
 
     rstring_devices = []
     # generate the rstrings
@@ -195,6 +197,7 @@ def get_RStrings(
 
 class RString(PrimitiveDeviceComposition):
     """Class to store a RString.
+
     A RString is formed by resistors which are in series.
 
     T2-----T3       T6
@@ -210,7 +213,7 @@ class RString(PrimitiveDeviceComposition):
     id_iter = itertools.count()
 
     def __init__(self, devices: list[ThreeTermResistor], use_dummies=True):
-        """Setup a RString.
+        """Set up a RString.
 
         Args:
             devices (list[ThreeTermResistor]): Resistors which form a RString, ordered according their connection.
@@ -229,30 +232,35 @@ class RString(PrimitiveDeviceComposition):
         self._devices = devices
 
         for device in self._devices:
-            if type(device) != ThreeTermResistor:
+            if isinstance(device, ThreeTermResistor):
                 raise ValueError("RString with wrong device class detected!")
 
-        for i in range(len(self._devices) - 1):
-            for j in range(1, len(self._devices)):
-                if self._devices[i].model != self._devices[j].model:
+        for i_ in range(len(self._devices) - 1):
+            for j_ in range(1, len(self._devices)):
+                if self._devices[i_].model != self._devices[j_].model:
                     raise ValueError("RString with unequal models detected!")
 
         model = self._devices[0].model
 
-        for i in range(len(self._devices) - 1):
-            for j in range(1, len(self._devices)):
-                if self._devices[i].parameters["L"] != self._devices[j].parameters["L"]:
+        for i_ in range(len(self._devices) - 1):  # TODO: Fix this
+            for j_ in range(1, len(self._devices)):
+                if (
+                    self._devices[i_].parameters["L"]
+                    != self._devices[j_].parameters["L"]
+                ):
                     raise ValueError("RString with unequal L detected!")
 
-        for i in range(len(self._devices) - 1):
-            for j in range(1, len(self._devices)):
-                if self._devices[i].parameters["W"] != self._devices[j].parameters["W"]:
+        for i_ in range(len(self._devices) - 1):
+            for j_ in range(1, len(self._devices)):
+                if (
+                    self._devices[i_].parameters["W"]
+                    != self._devices[j_].parameters["W"]
+                ):
                     raise ValueError("RString with unequal W detected!")
 
-        for i in range(len(self._devices) - 1):
-            for j in range(1, len(self._devices)):
-                if self._devices[i].parameters["m"] != 1:
-                    raise ValueError("RString with m!=1 detected!")
+        for i_ in range(len(self._devices)):
+            if self._devices[i_].parameters["m"] != 1:
+                raise ValueError("RString with m!=1 detected!")
 
         # get the bulk-net
         bulk_net = self._devices[0].terminal_nets["B"]
@@ -265,7 +273,7 @@ class RString(PrimitiveDeviceComposition):
         device_net_map = {}
 
         # iterate over the devices
-        for device, i in zip(self._devices, range(len(self._devices))):
+        for device, i_ in zip(self._devices, range(len(self._devices))):
             dev_nets = []
             # get the nets of the device, except the bulk-net
             for term_name, net in device.terminal_nets.items():
@@ -273,9 +281,9 @@ class RString(PrimitiveDeviceComposition):
                     dev_nets.append(net)
 
             # if already a device were traversed
-            if i > 0:
+            if i_ > 0:
                 # get the last device
-                last_device = self._devices[i - 1]
+                last_device = self._devices[i_ - 1]
                 # get the net order of the last device
                 last_net_order = device_net_map[last_device]
 
@@ -324,13 +332,13 @@ class RString(PrimitiveDeviceComposition):
 
         terminal_nets = []
         # iterate over the devices
-        for device, i in zip(self._devices, range(len(self._devices))):
+        for device, i_ in zip(self._devices, range(len(self._devices))):
             assert len(device_net_map[device]) == 2
 
             nets = device_net_map[device]
             # change the order of each 2nd resistor
             # to match the terminal order
-            if i % 2:
+            if i_ % 2:
                 terminal_nets.append(nets[1])
                 terminal_nets.append(nets[0])
             else:
@@ -340,13 +348,13 @@ class RString(PrimitiveDeviceComposition):
         terminal_nets.append(bulk_net)
 
         # Setup for each R a terminal + the terminal of the bulk
-        N_Terminals = 2 * len(devices) + 1
+        n_terminals = 2 * len(devices) + 1
 
         # sanity check
-        assert len(terminal_nets) == N_Terminals
+        assert len(terminal_nets) == n_terminals
 
         # get the device length
-        L = self._devices[0].parameters["L"]
+        par_l = self._devices[0].parameters["L"]
 
         # set the multiplier
         m = len(self._devices)
@@ -359,17 +367,17 @@ class RString(PrimitiveDeviceComposition):
             # of the dummies
             terminal_nets.insert(0, bulk_net)
             terminal_nets.append(bulk_net)
-            N_Terminals += 2
+            n_terminals += 2
 
         self._id = next(RString.id_iter)  # get a unique id for a RString
 
         # setup a spice description for the RString.
-        spice_description = f"XRSTR_{self._id!s} {' '.join([net.name for net in terminal_nets])} L={L} m={m}"
+        spice_description = f"XRSTR_{self._id!s} {' '.join([net.name for net in terminal_nets])} L={par_l} m={m}"
 
         super().__init__(
             devices,
             spice_description,
-            N_Terminals,
+            n_terminals,
             name_suffix=self._devices[0]._name_suffix,
             use_dummies=use_dummies,
         )
@@ -387,6 +395,7 @@ class RString(PrimitiveDeviceComposition):
 
     @property
     def devices(self):
+        """Return devices associated with RString."""
         return self._devices
 
     @property

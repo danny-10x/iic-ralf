@@ -27,7 +27,7 @@ from logging.handlers import RotatingFileHandler
 from environment.utils import do_bottom_up_placement
 from magic.magic_die import MagicDie
 from magic.utils import add_cells, instantiate_circuit
-from schematic_capture.rstring import include_RStrings_hierarchical
+from schematic_capture.rstring import include_rstrings_hierarchical
 from schematic_capture.utils import include_primitives_hierarchical, setup_circuit
 
 faulthandler.enable()
@@ -35,12 +35,12 @@ faulthandler.enable()
 #########################################################################
 
 # global variables to control the placement
-CIRCUIT_FILE = "Circuits/Examples/DiffAmp.spice"  # Input spice-netlist
+CIRCUIT_FILE = "circuits/examples/DiffAmp.spice"  # Input spice-netlist
 CIRCUIT_NAME = "DiffAmp"  # Name of the top-circuit
-NET_RULES_FILE = "NetRules/net_rules_DiffAmp.json"  # Net-rules definition file
+NET_RULES_FILE = "net_rules/net_rules_DiffAmp.json"  # Net-rules definition file
 N_PLACEMENTS = 1000  # Number of trial placements per circuit/subcircuit
 
-USE_LOGGER = False  # If True, debug information will be logged under "Logs/{CIRCUIT_NAME}_placement.log".
+USE_LOGGER = False  # If True, debug information will be logged under "logs/{CIRCUIT_NAME}_placement.log".
 INSTANTIATE_CELLS_IN_MAGIC = (
     True  # If True, the devices cell-view will be instantiated in Magic
 )
@@ -76,7 +76,7 @@ def rl_placement():
 
     # include primitive compositions into the circuit
     include_primitives_hierarchical(circuit)
-    include_RStrings_hierarchical(circuit)
+    include_rstrings_hierarchical(circuit)
 
     # instantiate the circuit cells in magic
     if INSTANTIATE_CELLS_IN_MAGIC:
@@ -98,7 +98,7 @@ def rl_placement():
     )
 
     # save the placed circuit
-    file = open(f"PlacementCircuits/{CIRCUIT_NAME}_placement.pkl", "wb")
+    file = open(f"placement_circuits/{CIRCUIT_NAME}_placement.pkl", "wb")
     pickle.dump(die, file)
     file.close()
 

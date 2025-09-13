@@ -27,13 +27,12 @@ from collections import OrderedDict
 
 from networkx.algorithms import isomorphism
 
-import schematic_capture.Primitives as Primitives
-from Rules.utils import generate_net_rules_from_file
-from schematic_capture.Circuit import Circuit
-from schematic_capture.Devices import PrimitiveDevice, SubDevice
-from schematic_capture.Netlist import Netlist
+from rules.utils import generate_net_rules_from_file
+from schematic_capture.circuit import Circuit
+from schematic_capture.devices import PrimitiveDevice, SubDevice
+from schematic_capture.netlist import Netlist
 from schematic_capture.ng_spice_parser import Parser
-from schematic_capture.Primitives import (
+from schematic_capture.primitives import (
     SUPPORTED_PRIMITIVES,
     PrimitiveDeviceComposition,
 )
@@ -44,10 +43,10 @@ logger = logging.getLogger(__name__)
 def setup_circuit(
     ngspice_netlist: str,
     name="",
-    exclude_nets: list[str] = [],
-    net_rules_file: str = None,
+    exclude_nets: tuple[str, ...] = (),
+    net_rules_file: str | None = None,
 ) -> Circuit:
-    """Setup a circuit.
+    """Set up a circuit.
 
     Args:
         ngspice_netlist (str): Spice file containing the netlist of the circuit.
@@ -64,32 +63,32 @@ def setup_circuit(
 
     # parse the netlist
     logger.info("Parsing netlist.")
-    P = Parser(ngspice_netlist)
-    raw_netlist = P.get_netlist()
+    parser = Parser(ngspice_netlist)
+    raw_netlist = parser.get_netlist()
 
     # build the netlist
     logger.info("Building netlist.")
-    N = Netlist(raw_netlist)
+    netlist = Netlist(raw_netlist)
 
     # build the circuit
     logger.info("Building circuit.")
-    C = Circuit(N)
+    circuit = Circuit(netlist)
 
     # set the name of the circuit
-    C.set_name(name)
+    circuit.set_name(name)
 
     # generate a graph of the circuit
-    C.generate_circuit_graph(exclude_nets)
+    circuit.generate_circuit_graph(exclude_nets)
 
     # include the net-rules into the circuit
     if net_rules_file:
         logger.info("Including net-rules.")
-        generate_net_rules_from_file(net_rules_file, C)
+        generate_net_rules_from_file(net_rules_file, circuit)
 
-    logger.info(f"Top-Circuit: {C} created.")
-    logger.info(f"Successfully created circuit {C}.")
+    logger.info(f"Top-Circuit: {circuit} created.")
+    logger.info(f"Successfully created circuit {circuit}.")
 
-    return C
+    return circuit
 
 
 def get_top_down_topology(circ: Circuit) -> list[tuple[int, Circuit]]:
@@ -100,18 +99,17 @@ def get_top_down_topology(circ: Circuit) -> list[tuple[int, Circuit]]:
 
     Returns:
         list[(int, Circuit)]: List of tuples, containing the topological layer number and the according circuit.
-    
+
     Example:
-        Top-level-circuit DBuf:    
+        Top-level-circuit DBuf:
                             x1 net1 net2 Vdd Vss inv
                             x2 net2 net3 Vdd Vss inv
                             x3 net3 net4 Vdd Vss buf
-        
         Sub-circuit inv:    .subckt inv in out Vdd Vss
                             XM1 out in Vss Vss nfet
                             XM2 out in Vdd Vdd pfet
                             .ends
-        
+
         Sub-circuit buf:    .subckt buf in out Vdd Vss
                             x1 in out1 Vdd Vss inv
                             x2 out1 out Vdd Vss inv
@@ -125,7 +123,8 @@ def get_top_down_topology(circ: Circuit) -> list[tuple[int, Circuit]]:
                                      /    \
                                   x1_x3  x2_x3          3
 
-        Resulting list: [(1, Circuit(DBuf)), (2, Circuit(x1)), (2, Circuit(x2)), (2, Circuit(x3)), (3, Circuit(x1_x3)), (3, Circuit(x2_x3))] 
+        Resulting list: [(1, Circuit(DBuf)), (2, Circuit(x1)), (2, Circuit(x2)),
+        (2, Circuit(x3)), (3, Circuit(x1_x3)), (3, Circuit(x2_x3))]
 
     """
     topology = []
@@ -151,20 +150,20 @@ def get_bottom_up_topology(circ: Circuit) -> list[tuple[int, Circuit]]:
         circ (Circuit): Circuit whose topology is to be identified.
 
     Returns:
-        list[(int, Circuit)]: List of tuples, containing the topological layer number and the according circuit, 
-                                starting with the lowest layer.
-    
+        list[(int, Circuit)]: List of tuples, containing the topological layer number
+        and the according circuit, starting with the lowest layer.
+
     Example:
-        Top-level-circuit DBuf:    
+        Top-level-circuit DBuf:
                             x1 net1 net2 Vdd Vss inv
                             x2 net2 net3 Vdd Vss inv
                             x3 net3 net4 Vdd Vss buf
-        
+
         Sub-circuit inv:    .subckt inv in out Vdd Vss
                             XM1 out in Vss Vss nfet
                             XM2 out in Vdd Vdd pfet
                             .ends
-        
+
         Sub-circuit buf:    .subckt buf in out Vdd Vss
                             x1 in out1 Vdd Vss inv
                             x2 out1 out Vdd Vss inv
@@ -178,7 +177,8 @@ def get_bottom_up_topology(circ: Circuit) -> list[tuple[int, Circuit]]:
                                      /    \
                                   x1_x3  x2_x3          3
 
-        Resulting list: [(3, Circuit(x1_x3)), (3, Circuit(x2_x3)), (2, Circuit(x1)), (2, Circuit(x2)), (2, Circuit(x3)), (1, Circuit(DBuf))] 
+        Resulting list: [(3, Circuit(x1_x3)), (3, Circuit(x2_x3)), (2, Circuit(x1)),
+        (2, Circuit(x2)), (2, Circuit(x3)), (1, Circuit(DBuf))]
 
     """
     # get the top-down topology
@@ -191,7 +191,8 @@ def get_bottom_up_topology(circ: Circuit) -> list[tuple[int, Circuit]]:
 
 
 def node_match(n1, n2) -> bool:
-    """Checks if two nodes match. (For graph-isomorphism.)
+    """Check if two nodes match (for graph-isomorphism).
+
         Nodes match if they have the same label.
         If nodes are devices, they only match if they have the same type.
 
@@ -205,7 +206,7 @@ def node_match(n1, n2) -> bool:
     """
     if n1["label"] == n2["label"]:
         if n1["label"] == "Device":
-            if type(n1["Device"]) == type(n2["Device"]):
+            if type(n1["Device"]) is type(n2["Device"]):  # TODO: Fix this
                 return True
             else:
                 return False
@@ -216,7 +217,8 @@ def node_match(n1, n2) -> bool:
 
 
 def edge_match(e1, e2) -> bool:
-    """Checks if two edges match. (For graph-isomorphism.)
+    """Check if two edges match (for graph-isomorphism).
+
         Two edges match if they originate from the same terminals.
 
     Args:
@@ -251,17 +253,17 @@ def get_primitives(circ: Circuit) -> dict[str, list[PrimitiveDeviceComposition]]
                 primitive_circuit = setup_circuit(path + file, prim)
 
                 # get the graphs
-                G1 = circ.get_bipartite_graph()
-                G2 = primitive_circuit.get_bipartite_graph()
+                graph1 = circ.get_bipartite_graph()
+                graph2 = primitive_circuit.get_bipartite_graph()
 
                 # find the primitive in the circuit
-                GM = isomorphism.GraphMatcher(
-                    G1, G2, node_match=node_match, edge_match=edge_match
+                graph_matcher = isomorphism.GraphMatcher(
+                    graph1, graph2, node_match=node_match, edge_match=edge_match
                 )
 
                 # get the devices which form a primitive device composition
                 prims = []
-                for gm in GM.subgraph_isomorphisms_iter():
+                for gm in graph_matcher.subgraph_isomorphisms_iter():
                     # gm : dict
                     # key : Name of matching device in circ
                     # value : Name of matching device in primitive_circuit
@@ -288,7 +290,7 @@ def get_primitives(circ: Circuit) -> dict[str, list[PrimitiveDeviceComposition]]
             # get the device instances
             devices = [circ.devices[dev] for dev in d]
             # get the class of the primitive device composition
-            gen_prim = getattr(Primitives, prim)
+            gen_prim = getattr(primitives, prim)
             new_prim = gen_prim(devices)
             primitives[prim].append(new_prim)
 
@@ -296,7 +298,7 @@ def get_primitives(circ: Circuit) -> dict[str, list[PrimitiveDeviceComposition]]
 
 
 def include_primitives_hierarchical(circ: Circuit):
-    """Finds and includes primitive device compositions into a hierarchical circuit.
+    """Find and includes primitive device compositions into a hierarchical circuit.
 
     Args:
         circ (Circuit): Circuit to include primitives.
@@ -305,7 +307,7 @@ def include_primitives_hierarchical(circ: Circuit):
     # get the topology of the circuit
     topology = get_bottom_up_topology(circ)
 
-    for t, circ in topology:
+    for _, circ in topology:
         # find primitive device compositions for each circuit
         # and include them into the circuit
         primitives = get_primitives(circ)

@@ -87,7 +87,7 @@ N 860 -340 860 -300 {
 lab=Von}
 N 860 -300 900 -300 {
 lab=Von}
-C {/home/jakob/Documents/RALF/Circuits/Examples/OpAmp/OpAmp.sym} 650 -310 0 0 {name=x1}
+C {./circuits/examples/OpAmp/OpAmp.sym} 650 -310 0 0 {name=x1}
 C {sky130_fd_pr/res_xhigh_po_0p35.sym} 330 -360 3 0 {name=R1
 L=1.75
 model=res_xhigh_po_0p35

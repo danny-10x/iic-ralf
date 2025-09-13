@@ -22,19 +22,19 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from Magic.MagicTerminal import MagicTerminal
-
-    from schematic_capture.Devices import Device, SubDevice
-    from schematic_capture.Net import Net
+    from magic.magic_terminal import MagicTerminal
+    from schematic_capture.devices import Device, SubDevice
+    from schematic_capture.net import Net
 
 
 class Pin:
     """Class for storing a device pin.
+
     E.g. The gate-terminal of a MOS is a device pin.
     """
 
     def __init__(self, name: str, device: Device) -> None:
-        """Setup a pin.
+        """Set up a pin.
 
         Args:
             name (str): Name of the pin.
@@ -68,6 +68,7 @@ class Pin:
 
     @property
     def net(self) -> Net:
+        """Return the net associated with the pin."""
         return self._net
 
     @property
@@ -100,9 +101,11 @@ class Pin:
         return self._magic_terminal
 
     def __repr__(self) -> str:
+        """Override default behaviour."""
         return f"{self.__class__.__name__}(device={self.device.name}, name={self.name})"
 
     def __eq__(self, __value: object) -> bool:
+        """Override default behaviour."""
         return (
             isinstance(__value, Pin)
             and (self.name == __value.name)
@@ -112,22 +115,27 @@ class Pin:
 
 class Terminal(Pin):
     """Same as SubDevicePin.
+
     Declared for sanity, because of renaming to SubDevicePin.
     """
 
     def __init__(self, name: str, device: SubDevice) -> None:
+        """Override default behaviour."""
         super().__init__(name, device)
         self._child_net = None
 
     def update_name(self, new_name: str):
+        """Update name of terminal."""
         self._name = new_name
 
     def set_child_net(self, net: Net):
+        """Set the child net for this terminal."""
         self._child_net = net
 
 
 class SubDevicePin(Terminal):
     """Class to store a SubDevicePin.
+
     A SubDevicePin is a terminal of a sub-device, which connects
     the external net with internal-net of the sub-device.
     """

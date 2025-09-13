@@ -19,7 +19,7 @@ N 0 -60 -0 -20 {
 lab=GND}
 N -30 -80 40 -80 {
 lab=Vbias}
-C {/home/jakob/Documents/RALF/Circuits/Examples/MillerOpAmpCMMFB/GmBias.sym} 190 -80 0 1 {name=x1}
+C {./circuits/examples/MillerOpAmpCMMFB/GmBias.sym} 190 -80 0 1 {name=x1}
 C {devices/vsource.sym} -450 -100 0 0 {name=V3 value=1.8}
 C {devices/gnd.sym} -450 0 0 0 {name=l3 lab=GND}
 C {devices/vdd.sym} -450 -190 0 0 {name=l4 lab=VDD}

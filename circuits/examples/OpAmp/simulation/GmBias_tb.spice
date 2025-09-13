@@ -1,4 +1,4 @@
-** sch_path: /home/jakob/Documents/RALF/Circuits/Examples/MillerOpAmpCMMFB/GmBias_tb.sch
+** sch_path: ./circuits/examples/MillerOpAmpCMMFB/GmBias_tb.sch
 **.subckt GmBias_tb
 x1 VDD Vbias GND GmBias
 V3 VDD GND 1.8
@@ -21,10 +21,10 @@ op
 **** end user architecture code
 **.ends
 
-* expanding   symbol:  /home/jakob/Documents/RALF/Circuits/Examples/MillerOpAmpCMMFB/GmBias.sym # of
+* expanding   symbol:  ./circuits/examples/MillerOpAmpCMMFB/GmBias.sym # of
 *+ pins=3
-** sym_path: /home/jakob/Documents/RALF/Circuits/Examples/MillerOpAmpCMMFB/GmBias.sym
-** sch_path: /home/jakob/Documents/RALF/Circuits/Examples/MillerOpAmpCMMFB/GmBias.sch
+** sym_path: ./circuits/examples/MillerOpAmpCMMFB/GmBias.sym
+** sch_path: ./circuits/examples/MillerOpAmpCMMFB/GmBias.sch
 .subckt GmBias Vdd Vbias Vss
 *.opin Vbias
 *.iopin Vss

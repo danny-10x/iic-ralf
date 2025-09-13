@@ -1,4 +1,4 @@
-** sch_path: /home/jakob/Documents/RALF/Circuits/Examples/Latch/CCLatch.sch
+** sch_path: ./circuits/examples/Latch/CCLatch.sch
 **.subckt CCLatch Vdd Vss in inn clk outn out
 *.iopin Vdd
 *.iopin Vss

@@ -45,7 +45,7 @@ CIRCUIT_NAME = "CCLatch_RPP"  # Name of the circuit
 
 ###################################################################
 # load the placed circuit
-file = open(f"PlacementCircuits/{CIRCUIT_NAME}_placement.pkl", "rb")
+file = open(f"placement_circuits/{CIRCUIT_NAME}_placement.pkl", "rb")
 die: MagicDie
 die = pickle.load(file)
 file.close()
@@ -132,6 +132,6 @@ print(table)
 
 # log the table
 try:
-    print(table, file=open(f"Logs/Stats/{circuit.name}_placement_stats.txt", "w"))
+    print(table, file=open(f"logs/stats/{circuit.name}_placement_stats.txt", "w"))
 except Exception:
-    print(table, file=open(f"Logs/Stats/{circuit.name}_placement_stats.txt", "a"))
+    print(table, file=open(f"logs/stats/{circuit.name}_placement_stats.txt", "a"))

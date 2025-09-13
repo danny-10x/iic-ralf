@@ -139,4 +139,4 @@ device="ceramic capacitor"}
 C {devices/gnd.sym} 1100 -110 0 0 {name=l7 lab=GND}
 C {devices/gnd.sym} 1100 -360 2 0 {name=l11 lab=GND}
 C {devices/title.sym} 150 0 0 0 {name=l5 author="Jakob Ratschenberger"}
-C {/home/jakob/Documents/RALF/Circuits/Examples/OpAmp/OpAmp.sym} 810 -230 0 0 {name=x1}
+C {./circuits/examples/OpAmp/OpAmp.sym} 810 -230 0 0 {name=x1}

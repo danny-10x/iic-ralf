@@ -45,7 +45,7 @@ N -10 -100 -10 -80 {
 lab=#net1}
 N -10 -180 -10 -160 {
 lab=inn}
-C {/home/jakob/Documents/RALF/Circuits/Examples/Latch/CCLatch.sym} 470 -110 0 0 {name=x1}
+C {./circuits/examples/Latch/CCLatch.sym} 470 -110 0 0 {name=x1}
 C {devices/vsource.sym} -560 -50 0 0 {name=V1 value=1.8}
 C {devices/vdd.sym} -560 -100 0 0 {name=l1 lab=VDD}
 C {devices/vdd.sym} 470 -170 0 0 {name=l2 lab=VDD}

@@ -29,9 +29,9 @@ from schematic_capture.devices import SUPPORTED_DEVICES, PrimitiveDevice
 from schematic_capture.ports import Pin
 
 SUPPORTED_PRIMITIVES = {
-    "DifferentialPair": "Circuits/Primitives/DiffPair/",
-    "DifferentialLoad": "Circuits/Primitives/DiffLoad/",
-    "CrossCoupledPair": "Circuits/Primitives/CrossCoupledPair/",
+    "DifferentialPair": "circuits/primitives/DiffPair/",
+    "DifferentialLoad": "circuits/primitives/DiffLoad/",
+    "CrossCoupledPair": "circuits/primitives/CrossCoupledPair/",
 }
 
 
@@ -123,13 +123,13 @@ class DifferentialPair(PrimitiveDeviceComposition):
             raise ValueError("Differential pair with unequal L detected!")
 
         # store the length
-        L = self._d1.parameters["L"]
+        par_l = self._d1.parameters["L"]
 
         if self._d1.parameters["W"] != self._d2.parameters["W"]:
             raise ValueError("Differential pair with unequal W detected!")
 
         # double the width, since the resulting MOS has doubled nf
-        W = self._d1.parameters["W"] * 2
+        par_w = self._d1.parameters["W"] * 2
 
         if self._d1.parameters["nf"] != self._d2.parameters["nf"]:
             raise ValueError("Differential pair with unequal L detected!")
@@ -149,10 +149,10 @@ class DifferentialPair(PrimitiveDeviceComposition):
 
         if use_dummies:
             # spice description with dummy fingers
-            spice_description = f"XDP_{self._d1.name_without_suffix}_{self._d2.name_without_suffix} {nets1['D'].name} {nets2['D'].name} {nets1['G'].name} {nets2['G'].name} {nets1['S'].name} {nets1['B'].name} W={W} L={L} nf={nf + 2} m=1"
+            spice_description = f"XDP_{self._d1.name_without_suffix}_{self._d2.name_without_suffix} {nets1['D'].name} {nets2['D'].name} {nets1['G'].name} {nets2['G'].name} {nets1['S'].name} {nets1['B'].name} W={par_w} L={par_l} nf={nf + 2} m=1"
         else:
             # spice description without dummy fingers
-            spice_description = f"XDP_{self._d1.name_without_suffix}_{self._d2.name_without_suffix} {nets1['D'].name} {nets2['D'].name} {nets1['G'].name} {nets2['G'].name} {nets1['S'].name} {nets1['B'].name} W={W} L={L} nf={nf} m=1"
+            spice_description = f"XDP_{self._d1.name_without_suffix}_{self._d2.name_without_suffix} {nets1['D'].name} {nets2['D'].name} {nets1['G'].name} {nets2['G'].name} {nets1['S'].name} {nets1['B'].name} W={par_w} L={par_l} nf={nf} m=1"
 
         # init the device
         super().__init__(
