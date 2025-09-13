@@ -27,6 +27,7 @@ from collections import OrderedDict
 
 from networkx.algorithms import isomorphism
 
+import schematic_capture.primitives as primitives_file
 from rules.utils import generate_net_rules_from_file
 from schematic_capture.circuit import Circuit
 from schematic_capture.devices import PrimitiveDevice, SubDevice
@@ -290,7 +291,7 @@ def get_primitives(circ: Circuit) -> dict[str, list[PrimitiveDeviceComposition]]
             # get the device instances
             devices = [circ.devices[dev] for dev in d]
             # get the class of the primitive device composition
-            gen_prim = getattr(primitives, prim)
+            gen_prim = getattr(primitives_file, prim)
             new_prim = gen_prim(devices)
             primitives[prim].append(new_prim)
 

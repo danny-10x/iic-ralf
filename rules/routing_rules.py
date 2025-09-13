@@ -23,7 +23,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from magic.cell import Cell
-    from PDK.Layers import Layer
+    from PDK.layers import Layer
 
 import abc
 

@@ -488,11 +488,11 @@ class Placement:
     def save_logs_to_csv(self):
         """Save the logged data to a CSV file.
 
-        The file will be located under Logs/<environment_name>_log.csv
+        The file will be located under logs/<environment_name>_log.csv
         """
         data = self.logger
         dataframe = pd.DataFrame(data)
-        filename = "Logs/" + self.name + "_log.csv"
+        filename = "logs/" + self.name + "_log.csv"
 
         dataframe.to_csv(filename)
 

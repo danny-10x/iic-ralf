@@ -25,7 +25,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from magic.cell import Cell
     from magic.macro_cell import MacroCell
-    from PDK.Layers import Layer
+    from PDK.layers import Layer
     from schematic_capture.net import Net
 
 import abc

@@ -620,7 +620,7 @@ class PlacementPPO:
     def save_logs_to_csv(self):
         """Save the logged data to a CSV file.
 
-        The file will be located under Logs/<environment_name>_training_log.csv
+        The file will be located under logs/<environment_name>_training_log.csv
         """
         data = {
             "avg_rews": self.logger["avg_rews"],

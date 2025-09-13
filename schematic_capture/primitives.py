@@ -135,7 +135,7 @@ class DifferentialPair(PrimitiveDeviceComposition):
             raise ValueError("Differential pair with unequal L detected!")
 
         # double the number of fingers
-        nf = self._d1.parameters["nf"] * 2
+        par_nf = self._d1.parameters["nf"] * 2
 
         if self._d1.parameters["m"] != 1 or self._d2.parameters["m"] != 1:
             raise ValueError("Differential pair with m>1 detected!")
@@ -149,10 +149,10 @@ class DifferentialPair(PrimitiveDeviceComposition):
 
         if use_dummies:
             # spice description with dummy fingers
-            spice_description = f"XDP_{self._d1.name_without_suffix}_{self._d2.name_without_suffix} {nets1['D'].name} {nets2['D'].name} {nets1['G'].name} {nets2['G'].name} {nets1['S'].name} {nets1['B'].name} W={par_w} L={par_l} nf={nf + 2} m=1"
+            spice_description = f"XDP_{self._d1.name_without_suffix}_{self._d2.name_without_suffix} {nets1['D'].name} {nets2['D'].name} {nets1['G'].name} {nets2['G'].name} {nets1['S'].name} {nets1['B'].name} W={par_w} L={par_l} nf={par_nf + 2} m=1"
         else:
             # spice description without dummy fingers
-            spice_description = f"XDP_{self._d1.name_without_suffix}_{self._d2.name_without_suffix} {nets1['D'].name} {nets2['D'].name} {nets1['G'].name} {nets2['G'].name} {nets1['S'].name} {nets1['B'].name} W={par_w} L={par_l} nf={nf} m=1"
+            spice_description = f"XDP_{self._d1.name_without_suffix}_{self._d2.name_without_suffix} {nets1['D'].name} {nets2['D'].name} {nets1['G'].name} {nets2['G'].name} {nets1['S'].name} {nets1['B'].name} W={par_w} L={par_l} nf={par_nf} m=1"
 
         # init the device
         super().__init__(

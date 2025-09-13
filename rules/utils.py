@@ -50,7 +50,7 @@ def generate_net_rules_from_file(file: str, circuit: Circuit):
         file.close()
 
         # import the net rules
-        module = importlib.import_module("Rules.NetRules")
+        module = importlib.import_module("rules.net_rules")
         rule: str
         args: dict
 

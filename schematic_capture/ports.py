@@ -141,7 +141,7 @@ class SubDevicePin(Terminal):
     """
 
     def __init__(self, name: str, device: SubDevice) -> None:
-        """Setup a pin for a SubDevive.
+        """Set up a pin for a SubDevive.
 
         Args:
             name (str): Name of the terminal.

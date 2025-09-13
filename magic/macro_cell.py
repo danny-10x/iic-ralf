@@ -24,7 +24,8 @@ import copy
 from magic.cell import Cell
 from magic.magic_layer import Color, MagicLayer, Rectangle
 from magic.magic_terminal import MagicPin, MagicTerminal
-from schematic_capture.devices import Net, SubDevice
+from schematic_capture.devices import SubDevice
+from schematic_capture.net import Net
 
 
 class MacroCell(Cell):

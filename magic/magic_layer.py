@@ -25,7 +25,7 @@ import numpy as np
 import pygame
 from matplotlib.patches import Rectangle as PatchRectangle
 
-from PDK.Layers import Layer
+from PDK.layers import Layer
 
 
 class Rectangle:

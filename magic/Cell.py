@@ -266,15 +266,15 @@ class Cell:
             list[float]: Feature values of the cell.
 
         """
-        l = []
+        feat_list = []
         for v in list(self.features.values()):
             if type(v) is list:
-                l.extend(v)
+                feat_list.extend(v)
             elif type(v) is tuple:
-                l.extend(v)
+                feat_list.extend(v)
             else:
-                l.append(float(v))
-        return l
+                feat_list.append(float(v))
+        return feat_list
 
     @property
     def device(self) -> Device:
@@ -460,8 +460,8 @@ class Cell:
             layers = list(self._layer_stack.values())
             bounding = layers[0].get_bounding_box()
 
-            for l in layers:
-                r_bound = l.get_bounding_box()
+            for layer_ in layers:
+                r_bound = layer_.get_bounding_box()
                 for i in range(2):
                     bounding[i] = min(bounding[i], r_bound[i])
 

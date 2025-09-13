@@ -139,21 +139,21 @@ class Parser:
 
         end_of_line_comment = ["$ ", "; ", "//"]
 
-        for l in net:
-            if l.startswith("*"):  # comment line
+        for line_ in net:
+            if line_.startswith("*"):  # comment line
                 continue
 
             indx = -1
             for c in end_of_line_comment:
-                indx = l.find(c)
+                indx = line_.find(c)
                 if not (indx == -1):
                     break
 
             if not (indx == -1):
-                new_net.append(l[0:indx].rstrip())
+                new_net.append(line_[0:indx].rstrip())
                 continue
 
-            new_net.append(l)
+            new_net.append(line_)
 
         return new_net
 
