@@ -6,13 +6,17 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
+import os
+import sys
+
+sys.path.insert(0, os.path.abspath("../../"))  # Adjust this path as needed
+
 project = "IIC-RALF"
 author = "JakobRat and hpretl"
-
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = ["myst_parser"]
+extensions = ["sphinx.ext.autodoc", "myst_parser"]
 
 templates_path = ["_templates"]
 exclude_patterns = []

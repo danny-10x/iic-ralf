@@ -11,8 +11,7 @@ Welcome to My Project Documentation!
    :caption: Contents:
 
    getting_started
-   usage
-   api_reference
+   modules
    contributing
 
 Indices and tables

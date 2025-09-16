@@ -61,10 +61,10 @@ class GatD2rlActor(nn.Module):
         batch = data.batch
 
         # GAT Forward pass
-        x_encoded = self.graph_embedding(x, edge_index, edge_attr=edge_attr)
+        x_encoded = self.gat1(x, edge_index, edge_attr=edge_attr)
         x_encoded = nn.functional.relu(x_encoded)
         x_encoded = self.norm1(x_encoded)
-        x_encoded = self.graph_embedding2(x_encoded, edge_index, edge_attr=edge_attr)
+        x_encoded = self.gat2(x_encoded, edge_index, edge_attr=edge_attr)
         x_encoded = nn.functional.relu(x_encoded)
 
         # Global aggregation
